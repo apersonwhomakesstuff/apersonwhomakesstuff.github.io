@@ -1,0 +1,853 @@
+/* 10.css - Windows 10 UI Library 
+ * A fork of XP.css (https://github.com/botoxparty/XP.css)
+ * This fork maintains the structure and naming conventions of XP.css
+ * while updating the visual style to match Windows 10
+ */
+
+/* Base XP.css wrapper adapted for Windows 10 */
+.xp.win10 {
+  background-color: #f0f0f0;
+  color: #000000;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  /* Light theme colors */
+  --surface: #ffffff;
+  --button-face: #e1e1e1;
+  --button-highlight: #ffffff;
+  --button-shadow: #a0a0a0;
+  --window-frame: #d1d1d1;
+  --dialog-blue: #0078d7;
+  --dialog-blue-hover: #006cc1;
+  --dialog-gray: #f0f0f0;
+  --dialog-gray-hover: #e5e5e5;
+  --link-blue: #0066cc;
+  --border-raised-outer: #a0a0a0;
+  --border-raised-inner: #ffffff;
+  --border-sunken-outer: #a0a0a0;
+  --border-sunken-inner: #ffffff;
+  --window-background: #ffffff;
+  --title-bar-background: #0078d7; /* Windows 10 blue */
+  --title-text: #ffffff;
+  --text: #000000;
+  --text-secondary: #555555;
+  --disabled: #cccccc;
+  --disabled-text: #888888;
+  --input-background: #ffffff;
+  --input-border: #999999;
+  --shadow: rgba(0, 0, 0, 0.1);
+  --tooltip-background: #202020;
+  --tooltip-text: #ffffff;
+  --menu-background: #ffffff;
+  --menu-text: #000000;
+  --menu-hover-background: #e5e5e5;
+  --scrollbar-track: #f0f0f0;
+  --scrollbar-thumb: #c1c1c1;
+  --scrollbar-thumb-hover: #a1a1a1;
+  --focus-outline: #0078d7;
+}
+
+.xp.win10.theme-dark {
+  background-color: #202020;
+  color: #ffffff;
+  /* Dark theme colors */
+  --surface: #2d2d2d;
+  --button-face: #333333;
+  --button-highlight: #444444;
+  --button-shadow: #222222;
+  --window-frame: #3f3f3f;
+  --dialog-blue: #0078d7;
+  --dialog-blue-hover: #1a88e0;
+  --dialog-gray: #2d2d2d;
+  --dialog-gray-hover: #3d3d3d;
+  --link-blue: #1a88e0;
+  --border-raised-outer: #444444;
+  --border-raised-inner: #3d3d3d;
+  --border-sunken-outer: #222222;
+  --border-sunken-inner: #2d2d2d;
+  --window-background: #2d2d2d;
+  --title-bar-background: #1f1f1f;
+  --title-text: #ffffff;
+  --text: #ffffff;
+  --text-secondary: #bbbbbb;
+  --disabled: #444444;
+  --disabled-text: #777777;
+  --input-background: #333333;
+  --input-border: #666666;
+  --shadow: rgba(0, 0, 0, 0.3);
+  --tooltip-background: #000000;
+  --tooltip-text: #ffffff;
+  --menu-background: #2d2d2d;
+  --menu-text: #ffffff;
+  --menu-hover-background: #3d3d3d;
+  --scrollbar-track: #2d2d2d;
+  --scrollbar-thumb: #555555;
+  --scrollbar-thumb-hover: #777777;
+  --focus-outline: #0078d7;
+}
+
+/* Focus styles */
+.xp.win10 *:focus {
+  outline: 1px solid var(--focus-outline);
+}
+
+/* Title bar and window controls */
+.xp.win10 .title-bar {
+  background: var(--title-bar-background);
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 31px; /* Windows 10 title bar height */
+  user-select: none;
+  color: var(--title-text);
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+
+.xp.win10 .title-bar-text {
+  color: var(--title-text);
+  font-weight: normal;
+  font-size: 12px;
+  padding-left: 12px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  flex-grow: 1;
+  letter-spacing: 0.02em;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.xp.win10 .title-bar-controls {
+  display: flex;
+  height: 100%;
+}
+
+/* Windows 10 style window controls */
+.xp.win10 .title-bar-controls button {
+  width: 46px;
+  height: 31px;
+  border: none;
+  background: transparent;
+  position: relative;
+  padding: 0;
+  margin: 0;
+  display: block;
+  min-width: auto;
+  transition: background-color 0.1s ease;
+}
+
+.xp.win10 .title-bar-controls button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.xp.win10.theme-dark .title-bar-controls button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Minimize button */
+.xp.win10 .title-bar-controls button[aria-label="Minimize"]:before {
+  content: "";
+  position: absolute;
+  top: 15px;
+  left: 18px;
+  width: 10px;
+  height: 1px;
+  background-color: var(--title-text);
+}
+
+/* Maximize button */
+.xp.win10 .title-bar-controls button[aria-label="Maximize"]:before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 18px;
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--title-text);
+  border-radius: 0;
+  box-sizing: border-box;
+}
+
+/* Close button */
+.xp.win10 .title-bar-controls button[aria-label="Close"]:before,
+.xp.win10 .title-bar-controls button[aria-label="Close"]:after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 23px;
+  width: 1.5px;
+  height: 12px;
+  background-color: var(--title-text);
+}
+
+.xp.win10 .title-bar-controls button[aria-label="Close"]:before {
+  transform: rotate(45deg);
+}
+
+.xp.win10 .title-bar-controls button[aria-label="Close"]:after {
+  transform: rotate(-45deg);
+}
+
+.xp.win10 .title-bar-controls button[aria-label="Close"]:hover {
+  background-color: #e81123;
+}
+
+.xp.win10.theme-dark .title-bar-controls button[aria-label="Close"]:hover {
+  background-color: #e81123;
+}
+
+.xp.win10 .title-bar-controls button[aria-label="Close"]:hover:before,
+.xp.win10 .title-bar-controls button[aria-label="Close"]:hover:after {
+  background-color: white;
+}
+
+/* Help button */
+.xp.win10 .title-bar-controls button[aria-label="Help"]:before {
+  content: "?";
+  position: absolute;
+  top: 5px;
+  left: 18px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--title-text);
+}
+
+/* Inactive window state */
+.xp.win10 .window:not(.active) .title-bar {
+  background: #ccc;
+  color: #333;
+}
+
+.xp.win10 .window:not(.active) .title-bar-text {
+  color: #333;
+}
+
+.xp.win10 .window:not(.active) .title-bar-controls button:before,
+.xp.win10 .window:not(.active) .title-bar-controls button:after {
+  background-color: #333;
+}
+
+/* Active window state */
+.xp.win10 .window.active .title-bar {
+  background: var(--title-bar-background); 
+}
+
+/* Colored title bar support */
+.xp.win10 .window.colored-title .title-bar {
+  background-color: var(--app-title-color, #0078d7);
+}
+
+.xp.win10 .window.colored-title .title-bar-text {
+  color: white;
+}
+
+.xp.win10 .window.colored-title .title-bar-controls button:before,
+.xp.win10 .window.colored-title .title-bar-controls button:after {
+  background-color: white;
+}
+
+/* Windows */
+.xp.win10 .window {
+  background: var(--window-background);
+  border: 1px solid var(--window-frame);
+  border-radius: 3px;
+  box-shadow: 0 4px 25px var(--shadow);
+  display: inline-block;
+  margin-bottom: 16px;
+  width: auto;
+  overflow: hidden;
+}
+
+.xp.win10.theme-dark .window {
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.25);
+}
+
+.xp.win10 .window-body {
+  padding: 16px;
+  margin: 0;
+}
+
+/* Status bar */
+.xp.win10 .status-bar {
+  background: var(--button-face);
+  padding: 4px 8px;
+  border-top: 1px solid var(--button-shadow);
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.xp.win10 .status-bar-field {
+  margin-right: 8px;
+}
+
+/* Buttons */
+.xp.win10 button {
+  background: var(--button-face);
+  border: 1px solid var(--button-shadow);
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  min-height: 32px;
+  min-width: 80px;
+  padding: 4px 16px;
+  position: relative;
+  text-align: center;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.xp.win10 button:hover {
+  background: var(--dialog-gray-hover);
+}
+
+.xp.win10 button:active {
+  background: var(--button-shadow);
+}
+
+.xp.win10 button:focus {
+  box-shadow: 0 0 0 1px var(--dialog-blue);
+  outline: none;
+}
+
+.xp.win10 button.default {
+  background: var(--dialog-blue);
+  color: white;
+}
+
+.xp.win10 button.default:hover {
+  background: var(--dialog-blue-hover);
+}
+
+.xp.win10 button:disabled {
+  background: var(--disabled);
+  color: var(--disabled-text);
+  cursor: not-allowed;
+}
+
+/* Form elements */
+.xp.win10 input[type="text"],
+.xp.win10 input[type="password"],
+.xp.win10 input[type="email"],
+.xp.win10 input[type="number"],
+.xp.win10 input[type="tel"],
+.xp.win10 input[type="url"],
+.xp.win10 input[type="search"],
+.xp.win10 textarea {
+  background: var(--input-background);
+  border: 1px solid var(--input-border);
+  box-sizing: border-box;
+  color: var(--text);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  min-height: 30px;
+  padding: 4px 8px;
+  width: 100%;
+}
+
+.xp.win10 input[type="text"]:focus,
+.xp.win10 input[type="password"]:focus,
+.xp.win10 input[type="email"]:focus,
+.xp.win10 input[type="number"]:focus,
+.xp.win10 input[type="tel"]:focus,
+.xp.win10 input[type="url"]:focus,
+.xp.win10 input[type="search"]:focus,
+.xp.win10 textarea:focus {
+  border-color: var(--dialog-blue);
+  box-shadow: 0 0 0 1px var(--dialog-blue);
+  outline: none;
+}
+
+.xp.win10 select {
+  background: var(--input-background);
+  border: 1px solid var(--input-border);
+  box-sizing: border-box;
+  color: var(--text);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  height: 32px;
+  padding: 4px 8px;
+  width: 100%;
+  appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="6" viewBox="0 0 12 6"><path d="M0 0l6 6 6-6z" fill="%23666"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 30px;
+}
+
+.xp.win10 select:focus {
+  border-color: var(--dialog-blue);
+  box-shadow: 0 0 0 1px var(--dialog-blue);
+  outline: none;
+}
+
+/* Fieldset/Legend */
+.xp.win10 fieldset {
+  border: 1px solid var(--button-shadow);
+  padding: 16px;
+  margin: 0;
+}
+
+.xp.win10 legend {
+  background: var(--window-background);
+  padding: 0 4px;
+}
+
+/* Checkbox/Radio */
+.xp.win10 input[type="checkbox"],
+.xp.win10 input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  background: var(--input-background);
+  border: 1px solid var(--input-border);
+  position: relative;
+  vertical-align: middle;
+}
+
+.xp.win10 input[type="checkbox"] {
+  border-radius: 0;
+}
+
+.xp.win10 input[type="radio"] {
+  border-radius: 50%;
+}
+
+.xp.win10 input[type="checkbox"]:checked::after {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 7px;
+  top: 3px;
+  width: 5px;
+  height: 10px;
+  border: solid var(--dialog-blue);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.xp.win10 input[type="radio"]:checked::after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--dialog-blue);
+}
+
+.xp.win10 label {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.xp.win10 label input[type="checkbox"],
+.xp.win10 label input[type="radio"] {
+  margin-right: 8px;
+}
+
+/* Progress bar */
+.xp.win10 progress {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: 1px solid var(--button-shadow);
+  height: 4px;
+  width: 100%;
+  background-color: var(--input-background);
+}
+
+.xp.win10 progress::-webkit-progress-bar {
+  background: var(--input-background);
+}
+
+.xp.win10 progress::-webkit-progress-value,
+.xp.win10 progress::-moz-progress-bar {
+  background: var(--dialog-blue);
+}
+
+/* Dialog */
+.xp.win10 .dialog-box {
+  background: var(--window-background);
+  border: 1px solid var(--window-frame);
+  box-shadow: 0 4px 10px var(--shadow);
+  margin: 32px auto;
+  max-width: 480px;
+  padding: 0;
+}
+
+.xp.win10 .dialog-heading {
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.xp.win10 .message-box {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.xp.win10 .message-box img {
+  margin-right: 16px;
+  width: 32px;
+  height: 32px;
+}
+
+.xp.win10 .message-content h4 {
+  margin-top: 0;
+  margin-bottom: 4px;
+}
+
+.xp.win10 .message-content p {
+  margin: 0;
+}
+
+.xp.win10 .button-group {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.xp.win10 .button-group button {
+  margin-left: 8px;
+}
+
+/* Tabs */
+.xp.win10 .tabs {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.xp.win10 .tabs-list {
+  display: flex;
+  border-bottom: 1px solid var(--button-shadow);
+  background-color: var(--button-face);
+  padding-top: 4px;
+}
+
+.xp.win10 .tabs-list button {
+  background: transparent;
+  border: 1px solid transparent;
+  border-bottom: none;
+  padding: 8px 16px;
+  margin: 0 2px 0 0;
+  min-width: auto;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  color: var(--text);
+  position: relative;
+  top: 1px;
+}
+
+.xp.win10 .tabs-list button.active {
+  background: var(--window-background);
+  border-color: var(--button-shadow);
+  border-bottom-color: var(--window-background);
+}
+
+.xp.win10 .tabs-panel {
+  padding: 16px;
+  background: var(--window-background);
+}
+
+/* Tree view */
+.xp.win10 .tree-view {
+  background: var(--input-background);
+  border: 1px solid var(--input-border);
+  padding: 8px;
+  height: 200px;
+  overflow: auto;
+}
+
+.xp.win10 .tree-view ul {
+  list-style-type: none;
+  padding-left: 20px;
+  margin: 0;
+}
+
+.xp.win10 .tree-view > ul {
+  padding-left: 0;
+}
+
+.xp.win10 .tree-view li {
+  padding: 2px 0;
+}
+
+.xp.win10 .tree-view details {
+  margin-left: -20px;
+}
+
+.xp.win10 .tree-view details > summary {
+  list-style-type: none;
+  position: relative;
+  padding-left: 20px;
+  cursor: pointer;
+}
+
+.xp.win10 .tree-view details > summary:before {
+  content: "+";
+  position: absolute;
+  left: 0;
+  font-family: monospace;
+  font-weight: bold;
+}
+
+.xp.win10 .tree-view details[open] > summary:before {
+  content: "-";
+}
+
+/* Menu */
+.xp.win10 .menu-bar {
+  background-color: var(--window-background);
+  border-bottom: 1px solid var(--button-shadow);
+  padding: 4px 8px;
+  display: flex;
+}
+
+.xp.win10 .menu-bar button {
+  min-width: auto;
+  height: auto;
+  border: none;
+  background: transparent;
+  padding: 4px 8px;
+  margin: 0 4px 0 0;
+}
+
+.xp.win10 .menu-bar button:hover {
+  background-color: var(--dialog-gray-hover);
+}
+
+.xp.win10 .menu-dropdown {
+  background-color: var(--menu-background);
+  border: 1px solid var(--button-shadow);
+  box-shadow: 2px 2px 4px var(--shadow);
+  padding: 4px 0;
+  min-width: 150px;
+}
+
+.xp.win10 .menu-item {
+  padding: 6px 24px 6px 12px;
+  color: var(--menu-text);
+  display: block;
+  text-decoration: none;
+  position: relative;
+  white-space: nowrap;
+}
+
+.xp.win10 .menu-item:hover {
+  background-color: var(--menu-hover-background);
+}
+
+.xp.win10 .menu-separator {
+  border-top: 1px solid var(--button-shadow);
+  margin: 4px 0;
+}
+
+/* Tooltips */
+.xp.win10 .tooltip {
+  position: relative;
+}
+
+.xp.win10 .tooltip:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 10px;
+  background-color: var(--tooltip-background);
+  color: var(--tooltip-text);
+  font-size: 12px;
+  white-space: nowrap;
+  border-radius: 2px;
+  pointer-events: none;
+  margin-bottom: 8px;
+  z-index: 100;
+}
+
+/* List view */
+.xp.win10 .list-view {
+  background: var(--input-background);
+  border: 1px solid var(--input-border);
+  height: 200px;
+  overflow: auto;
+}
+
+.xp.win10 .list-view-row {
+  display: flex;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--dialog-gray-hover);
+  align-items: center;
+}
+
+.xp.win10 .list-view-row:hover {
+  background-color: var(--dialog-gray-hover);
+}
+
+.xp.win10 .list-view-row.selected {
+  background-color: var(--dialog-blue);
+  color: white;
+}
+
+/* Scrollbars */
+.xp.win10 ::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.xp.win10 ::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+.xp.win10 ::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 6px;
+  border: 2px solid var(--scrollbar-track);
+}
+
+.xp.win10 ::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* Sliders */
+.xp.win10 input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--button-shadow);
+  outline: none;
+  border-radius: 2px;
+}
+
+.xp.win10 input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--dialog-blue);
+  cursor: pointer;
+  border: none;
+}
+
+.xp.win10 input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--dialog-blue);
+  cursor: pointer;
+  border: none;
+}
+
+/* File input */
+.xp.win10 input[type="file"] {
+  background: var(--input-background);
+  border: 1px solid var(--input-border);
+  box-sizing: border-box;
+  color: var(--text);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  padding: 4px;
+}
+
+/* Links */
+.xp.win10 a {
+  color: var(--link-blue);
+  text-decoration: none;
+}
+
+.xp.win10 a:hover {
+  text-decoration: underline;
+}
+
+/* Task list */
+.xp.win10 .task-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.xp.win10 .task-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid var(--dialog-gray-hover);
+}
+
+.xp.win10 .task-item:hover {
+  background-color: var(--dialog-gray-hover);
+}
+
+.xp.win10 .task-icon {
+  margin-right: 12px;
+}
+
+.xp.win10 .task-text {
+  flex-grow: 1;
+}
+
+/* Tool bar */
+.xp.win10 .tool-bar {
+  background-color: var(--button-face);
+  padding: 4px;
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--button-shadow);
+}
+
+.xp.win10 .tool-bar button {
+  min-width: auto;
+  padding: 4px 8px;
+  margin: 0;
+}
+
+/* File Explorer */
+.xp.win10 .file-explorer {
+  display: flex;
+  height: 300px;
+  border: 1px solid var(--button-shadow);
+}
+
+.xp.win10 .file-explorer-sidebar {
+  width: 200px;
+  border-right: 1px solid var(--button-shadow);
+  overflow: auto;
+  background-color: var(--dialog-gray);
+}
+
+.xp.win10 .file-explorer-content {
+  flex-grow: 1;
+  overflow: auto;
+  background-color: var(--input-background);
+  padding: 8px;
+}
+
+.xp.win10 .file-explorer-item {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  margin: 2px 0;
+}
+
+.xp.win10 .file-explorer-item:hover {
+  background-color: var(--dialog-gray-hover);
+}
+
+.xp.win10 .file-explorer-item.selected {
+  background-color: var(--dialog-blue);
+  color: white;
+}
+
+.xp.win10 .file-explorer-icon {
+  margin-right: 8px;
+}

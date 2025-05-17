@@ -1,0 +1,1085 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10.css - Windows 10 UI Fork of XP.css</title>
+    <link rel="stylesheet" href="10.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f0f0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .menu-bar {
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #d1d1d1;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+        }
+        
+        .menu-bar ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .menu-bar a {
+            text-decoration: none;
+            color: #000;
+            padding: 5px 10px;
+        }
+        
+        .menu-bar a:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .hero-section {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: #0078d7;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .hero-section h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .hero-section p {
+            font-size: 1.2em;
+            max-width: 700px;
+            margin: 0 auto 20px;
+        }
+        
+        .main-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .main-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        
+        .github-button {
+            background-color: #24292e;
+        }
+        
+        .github-button:hover {
+            background-color: #2b3137;
+        }
+        
+        .download-button {
+            background-color: #107C10;
+        }
+        
+        .download-button:hover {
+            background-color: #0b5e0b;
+        }
+        
+        .doc-content {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .doc-content h2 {
+            color: #0078d7;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .component-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        .demo-section {
+            margin-bottom: 30px;
+        }
+        
+        .component-example {
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .example-preview {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .code-example {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 0 0 4px 4px;
+            margin: 0;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        
+        .tab-container {
+            margin: 20px 0;
+        }
+        
+        .tab-navigation {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 15px;
+        }
+        
+        .tab-navigation button {
+            background: none;
+            border: none;
+            padding: 10px 15px;
+            margin: 0;
+            min-width: auto;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+        }
+        
+        .tab-navigation button.active {
+            border-bottom: 2px solid #0078d7;
+            font-weight: 500;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 0 0 4px 4px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .sidebar {
+            position: sticky;
+            top: 20px;
+            padding-right: 20px;
+        }
+        
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar li {
+            margin-bottom: 10px;
+        }
+        
+        .sidebar a {
+            display: block;
+            padding: 8px 10px;
+            text-decoration: none;
+            color: #000;
+            border-radius: 4px;
+        }
+        
+        .sidebar a:hover, .sidebar a.active {
+            background-color: #e0e0e0;
+        }
+        
+        .two-column-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 30px;
+        }
+        
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            background-color: #f0f0f0;
+            border-top: 1px solid #d1d1d1;
+        }
+        
+        /* Dark mode styles */
+        body.dark-mode {
+            background-color: #202020;
+            color: #f0f0f0;
+        }
+        
+        body.dark-mode .menu-bar {
+            background-color: #2d2d2d;
+            border-color: #3d3d3d;
+        }
+        
+        body.dark-mode .menu-bar a {
+            color: #f0f0f0;
+        }
+        
+        body.dark-mode .menu-bar a:hover {
+            background-color: #3d3d3d;
+        }
+        
+        body.dark-mode .doc-content {
+            background-color: #2d2d2d;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        body.dark-mode .doc-content h2 {
+            border-color: #3d3d3d;
+        }
+        
+        body.dark-mode .component-card,
+        body.dark-mode .example-preview,
+        body.dark-mode .tab-content {
+            background-color: #333;
+            border-color: #444;
+        }
+        
+        body.dark-mode .code-example {
+            background-color: #222;
+            color: #ddd;
+        }
+        
+        body.dark-mode footer {
+            background-color: #2d2d2d;
+            border-color: #3d3d3d;
+            color: #bbb;
+        }
+        
+        body.dark-mode .sidebar a:hover, 
+        body.dark-mode .sidebar a.active {
+            background-color: #3d3d3d;
+            color: #f0f0f0;
+        }
+        
+        @media (max-width: 768px) {
+            .two-column-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: static;
+                padding-right: 0;
+                margin-bottom: 20px;
+            }
+            
+            .sidebar ul {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .component-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .spin {
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="xp win10 theme-light">
+        <div class="theme-toggle">
+            <button onclick="toggleTheme()">Toggle Theme</button>
+        </div>
+        
+        <div class="menu-bar">
+            <ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#installation">Installation</a></li>
+                <li><a href="#components">Components</a></li>
+                <li><a href="#windows">Windows</a></li>
+                <li><a href="#dialogs">Dialogs</a></li>
+                <li><a href="#download">Download</a></li>
+                <li><a href="https://github.com/apersonwhomakesstuff/10.css" target="_blank">GitHub</a></li>
+            </ul>
+        </div>
+        
+        <div class="hero-section">
+            <h1>10.css</h1>
+            <p>A Windows 10 UI library - A direct fork of XP.css that transforms Windows XP styling into Windows 10</p>
+            
+            <div class="main-buttons">
+                <a href="https://github.com/apersonwhomakesstuff/10.css" class="main-button github-button" target="_blank">
+                    <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 8px;">
+                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                    </svg>
+                    View on GitHub
+                </a>
+                <a href="#download" class="main-button download-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    Download 10.css
+                </a>
+            </div>
+        </div>
+        
+        <div class="container">
+            <div class="two-column-layout">
+                <div class="sidebar">
+                    <ul>
+                        <li><a href="#overview" class="active">Overview</a></li>
+                        <li><a href="#installation">Installation</a></li>
+                        <li><a href="#getting-started">Getting Started</a></li>
+                        <li><a href="#components">Components</a></li>
+                        <li><a href="#buttons">Buttons</a></li>
+                        <li><a href="#forms">Form Elements</a></li>
+                        <li><a href="#windows">Windows</a></li>
+                        <li><a href="#dialogs">Dialogs</a></li>
+                        <li><a href="#progress">Progress Bars</a></li>
+                        <li><a href="#dark-mode">Dark Mode</a></li>
+                        <li><a href="#comparison">XP.css Comparison</a></li>
+                        <li><a href="#download">Download</a></li>
+                    </ul>
+                </div>
+                
+                <div class="main-content">
+                    <div class="doc-content" id="overview">
+                        <h2>Overview</h2>
+                        <p>10.css is a CSS framework that replicates the Windows 10 interface design for your web applications. It's a direct fork of XP.css that maintains all the same structure, class names, and HTML patterns, but updates the visual design to match Microsoft's Windows 10 UI.</p>
+                        
+                        <div class="message-box">
+                            <img src="win10-info-icon.png" alt="Info">
+                            <div class="message-content">
+                                <h4>Key Features</h4>
+                                <p>Zero dependencies, drop-in integration, no JavaScript required for core functionality, and perfect for nostalgic or themed interfaces.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="component-grid">
+                            <div class="component-card">
+                                <h4>Drop-in Replacement</h4>
+                                <p>If you're already using XP.css, you can simply replace it with 10.css without changing any HTML markup.</p>
+                            </div>
+                            <div class="component-card">
+                                <h4>Dark Mode</h4>
+                                <p>Unlike the original XP.css, 10.css includes built-in dark mode support that mimics Windows 10 dark theme.</p>
+                            </div>
+                            <div class="component-card">
+                                <h4>Framework Agnostic</h4>
+                                <p>Works with any front-end framework or vanilla HTML - no dependencies required.</p>
+                            </div>
+                            <div class="component-card">
+                                <h4>Responsive Design</h4>
+                                <p>Components adapt to different screen sizes while maintaining the Windows 10 look and feel.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="doc-content" id="installation">
+                        <h2>Installation</h2>
+                        
+                        <div class="tab-container">
+                            <div class="tab-navigation">
+                                <button class="tab-button active" data-tab="cdn-tab">CDN</button>
+                                <button class="tab-button" data-tab="download-tab">Download</button>
+                                <button class="tab-button" data-tab="npm-tab">NPM</button>
+                            </div>
+                            
+                            <div class="tab-content active" id="cdn-tab">
+                                <div class="code-example">
+                                    &lt;!-- From GitHub --&gt;
+                                    &lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/apersonwhomakesstuff/10.css@main/10.css"&gt;
+
+                                    &lt;!-- From websim.ai --&gt;
+                                    &lt;link rel="stylesheet" href="https://10css.c.websim.ai/10.css"&gt;
+                                </div>
+                            </div>
+                            
+                            <div class="tab-content" id="download-tab">
+                                <div class="code-example">
+                                    # Download the CSS file directly from GitHub
+                                    curl -O https://raw.githubusercontent.com/apersonwhomakesstuff/10.css/main/10.css
+
+                                    # Or from websim.ai
+                                    curl -O https://10css.c.websim.ai/10.css
+                                </div>
+                            </div>
+                            
+                            <div class="tab-content" id="npm-tab">
+                                <div class="code-example">
+                                    # Note: This is a placeholder - coming soon to NPM
+                                    npm install 10css
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="message-box">
+                            <img src="win10-info-icon.png" alt="Info">
+                            <div class="message-content">
+                                <h4>Download Options</h4>
+                                <p>You can download 10.css as a ZIP file with all necessary files, or just include the CSS file in your project.</p>
+                            </div>
+                        </div>
+                        
+                        <a href="https://github.com/apersonwhomakesstuff/10.css/archive/refs/heads/main.zip" class="main-button download-button" id="directDownloadBtn" style="margin-top: 20px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                            Download 10.css (ZIP)
+                        </a>
+                        <a href="#" class="main-button download-button" id="downloadZipBtn" style="margin: 20px 0 0 10px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                            Generate ZIP Package
+                        </a>
+                    </div>
+                    
+                    <div class="doc-content" id="getting-started">
+                        <h2>Getting Started</h2>
+                        <p>To use 10.css, wrap your content in elements with both the <code>xp</code> and <code>win10</code> classes:</p>
+                        
+                        <div class="code-example">
+                            &lt;div class="xp win10"&gt;
+                                &lt;!-- Your Windows 10-styled content here --&gt;
+                            &lt;/div&gt;
+                        </div>
+                        
+                        <p>For dark mode, add the <code>theme-dark</code> class as well:</p>
+                        
+                        <div class="code-example">
+                            &lt;div class="xp win10 theme-dark"&gt;
+                                &lt;!-- Your Windows 10-styled content in dark mode --&gt;
+                            &lt;/div&gt;
+                        </div>
+                        
+                        <h3>Basic Template</h3>
+                        <div class="code-example">
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;10.css Example&lt;/title&gt;
+    &lt;link rel="stylesheet" href="https://10css.c.websim.ai/10.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="xp win10"&gt;
+        &lt;div class="window"&gt;
+            &lt;div class="title-bar"&gt;
+                &lt;div class="title-bar-text"&gt;Example Window&lt;/div&gt;
+                &lt;div class="title-bar-controls"&gt;
+                    &lt;button aria-label="Minimize"&gt;&lt;/button&gt;
+                    &lt;button aria-label="Maximize"&gt;&lt;/button&gt;
+                    &lt;button aria-label="Close"&gt;&lt;/button&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="window-body"&gt;
+                &lt;p&gt;Hello, Windows 10!&lt;/p&gt;
+                &lt;button&gt;OK&lt;/button&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+                        </div>
+                    </div>
+                    
+                    <div class="doc-content" id="components">
+                        <h2>Components</h2>
+                        
+                        <div class="demo-section" id="buttons">
+                            <h3>Buttons</h3>
+                            <p>10.css provides several button styles that mimic Windows 10 buttons.</p>
+                            
+                            <div class="component-example">
+                                <div class="example-preview">
+                                    <button>Standard Button</button>
+                                    <button class="default">Primary Button</button>
+                                    <button disabled>Disabled Button</button>
+                                </div>
+                                <div class="code-example">
+&lt;button&gt;Standard Button&lt;/button&gt;
+&lt;button class="default"&gt;Primary Button&lt;/button&gt;
+&lt;button disabled&gt;Disabled Button&lt;/button&gt;
+                                </div>
+                            </div>
+                            
+                            <p>Button styles adapt automatically to light and dark themes.</p>
+                        </div>
+                        
+                        <div class="demo-section" id="forms">
+                            <h3>Form Elements</h3>
+                            <p>10.css includes styled form controls that match the Windows 10 aesthetic.</p>
+                            
+                            <h4>Text Inputs</h4>
+                            <div class="component-example">
+                                <div class="example-preview">
+                                    <input type="text" placeholder="Standard text input">
+                                    <input type="password" placeholder="Password input">
+                                    <textarea placeholder="Textarea element"></textarea>
+                                </div>
+                                <div class="code-example">
+&lt;input type="text" placeholder="Standard text input"&gt;
+&lt;input type="password" placeholder="Password input"&gt;
+&lt;textarea placeholder="Textarea element"&gt;&lt;/textarea&gt;
+                                </div>
+                            </div>
+                            
+                            <h4>Checkboxes & Radio Buttons</h4>
+                            <div class="component-example">
+                                <div class="example-preview">
+                                    <label>
+                                        <input type="checkbox"> Checkbox option
+                                    </label>
+                                    <br>
+                                    <label>
+                                        <input type="checkbox" checked> Checked checkbox
+                                    </label>
+                                    <br><br>
+                                    <label>
+                                        <input type="radio" name="radio-group"> Radio option 1
+                                    </label>
+                                    <br>
+                                    <label>
+                                        <input type="radio" name="radio-group" checked> Radio option 2
+                                    </label>
+                                </div>
+                                <div class="code-example">
+&lt;label&gt;
+    &lt;input type="checkbox"&gt; Checkbox option
+&lt;/label&gt;
+
+&lt;label&gt;
+    &lt;input type="checkbox" checked&gt; Checked checkbox
+&lt;/label&gt;
+
+&lt;label&gt;
+    &lt;input type="radio" name="radio-group"&gt; Radio option 1
+&lt;/label&gt;
+
+&lt;label&gt;
+    &lt;input type="radio" name="radio-group" checked&gt; Radio option 2
+&lt;/label&gt;
+                                </div>
+                            </div>
+                            
+                            <h4>Select Inputs</h4>
+                            <div class="component-example">
+                                <div class="example-preview">
+                                    <select>
+                                        <option>Option 1</option>
+                                        <option>Option 2</option>
+                                        <option>Option 3</option>
+                                    </select>
+                                </div>
+                                <div class="code-example">
+&lt;select&gt;
+    &lt;option&gt;Option 1&lt;/option&gt;
+    &lt;option&gt;Option 2&lt;/option&gt;
+    &lt;option&gt;Option 3&lt;/option&gt;
+&lt;/select&gt;
+                                </div>
+                            </div>
+                            
+                            <h4>Fieldsets & Legends</h4>
+                            <div class="component-example">
+                                <div class="example-preview">
+                                    <fieldset>
+                                        <legend>Form Group Title</legend>
+                                        <label>
+                                            <input type="checkbox"> Option 1
+                                        </label>
+                                        <label>
+                                            <input type="checkbox"> Option 2
+                                        </label>
+                                    </fieldset>
+                                </div>
+                                <div class="code-example">
+&lt;fieldset&gt;
+    &lt;legend&gt;Form Group Title&lt;/legend&gt;
+    &lt;label&gt;
+        &lt;input type="checkbox"&gt; Option 1
+    &lt;/label&gt;
+    &lt;label&gt;
+        &lt;input type="checkbox"&gt; Option 2
+    &lt;/label&gt;
+&lt;/fieldset&gt;
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="demo-section" id="progress">
+                            <h3>Progress Bars</h3>
+                            <div class="component-example">
+                                <div class="example-preview">
+                                    <progress value="60" max="100"></progress>
+                                    <br><br>
+                                    <progress value="30" max="100"></progress>
+                                </div>
+                                <div class="code-example">
+&lt;progress value="60" max="100"&gt;&lt;/progress&gt;
+&lt;progress value="30" max="100"&gt;&lt;/progress&gt;
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="doc-content" id="windows">
+                        <h2>Windows</h2>
+                        <p>Create classic Windows 10 style windows with title bars and controls.</p>
+                        
+                        <div class="component-example">
+                            <div class="example-preview">
+                                <div class="window" style="width: 400px; height: 200px;">
+                                    <div class="title-bar">
+                                        <div class="title-bar-text">Sample Window</div>
+                                        <div class="title-bar-controls">
+                                            <button aria-label="Minimize"></button>
+                                            <button aria-label="Maximize"></button>
+                                            <button aria-label="Close"></button>
+                                        </div>
+                                    </div>
+                                    <div class="window-body">
+                                        <p>This is a standard Windows 10 style window. The window controls are non-functional by default and require JavaScript for actual window management.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="code-example">
+&lt;div class="window"&gt;
+    &lt;div class="title-bar"&gt;
+        &lt;div class="title-bar-text"&gt;Sample Window&lt;/div&gt;
+        &lt;div class="title-bar-controls"&gt;
+            &lt;button aria-label="Minimize"&gt;&lt;/button&gt;
+            &lt;button aria-label="Maximize"&gt;&lt;/button&gt;
+            &lt;button aria-label="Close"&gt;&lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="window-body"&gt;
+        &lt;p&gt;Window content goes here&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+                            </div>
+                        </div>
+                        
+                        <h3>Window Variations</h3>
+                        <div class="component-example">
+                            <div class="example-preview">
+                                <div class="window active" style="width: 400px; margin-bottom: 20px;">
+                                    <div class="title-bar">
+                                        <div class="title-bar-text">Active Window</div>
+                                        <div class="title-bar-controls">
+                                            <button aria-label="Minimize"></button>
+                                            <button aria-label="Maximize"></button>
+                                            <button aria-label="Close"></button>
+                                        </div>
+                                    </div>
+                                    <div class="window-body">
+                                        <p>This window has the "active" class applied.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="window colored-title" style="width: 400px;">
+                                    <div class="title-bar">
+                                        <div class="title-bar-text">Colored Title Bar</div>
+                                        <div class="title-bar-controls">
+                                            <button aria-label="Minimize"></button>
+                                            <button aria-label="Maximize"></button>
+                                            <button aria-label="Close"></button>
+                                        </div>
+                                    </div>
+                                    <div class="window-body">
+                                        <p>This window has a colored title bar with the "colored-title" class.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="code-example">
+&lt;!-- Active window --&gt;
+&lt;div class="window active"&gt;
+    &lt;div class="title-bar"&gt;
+        &lt;div class="title-bar-text"&gt;Active Window&lt;/div&gt;
+        &lt;!-- Controls as above --&gt;
+    &lt;/div&gt;
+    &lt;div class="window-body"&gt;
+        &lt;p&gt;This window has the "active" class applied.&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Colored title bar --&gt;
+&lt;div class="window colored-title"&gt;
+    &lt;div class="title-bar"&gt;
+        &lt;div class="title-bar-text"&gt;Colored Title Bar&lt;/div&gt;
+        &lt;!-- Controls as above --&gt;
+    &lt;/div&gt;
+    &lt;div class="window-body"&gt;
+        &lt;p&gt;This window has a colored title bar.&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="doc-content" id="dialogs">
+                        <h2>Dialogs & Message Boxes</h2>
+                        
+                        <h3>Message Box</h3>
+                        <div class="component-example">
+                            <div class="example-preview">
+                                <div class="message-box">
+                                    <img src="win10-info-icon.png" alt="Info">
+                                    <div class="message-content">
+                                        <h4>Information</h4>
+                                        <p>This is an information message.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="code-example">
+&lt;div class="message-box"&gt;
+    &lt;img src="win10-info-icon.png" alt="Info"&gt;
+    &lt;div class="message-content"&gt;
+        &lt;h4&gt;Information&lt;/h4&gt;
+        &lt;p&gt;This is an information message.&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+                            </div>
+                        </div>
+                        
+                        <h3>Error Message</h3>
+                        <div class="component-example">
+                            <div class="example-preview">
+                                <div class="message-box">
+                                    <img src="win10-error-icon.png" alt="Error">
+                                    <div class="message-content">
+                                        <h4>Error</h4>
+                                        <p>Something went wrong.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="code-example">
+&lt;div class="message-box"&gt;
+    &lt;img src="win10-error-icon.png" alt="Error"&gt;
+    &lt;div class="message-content"&gt;
+        &lt;h4&gt;Error&lt;/h4&gt;
+        &lt;p&gt;Something went wrong.&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+                            </div>
+                        </div>
+                        
+                        <h3>Dialog Box</h3>
+                        <div class="component-example">
+                            <div class="example-preview">
+                                <div class="dialog-box">
+                                    <div class="title-bar">
+                                        <div class="title-bar-text">Dialog Title</div>
+                                        <div class="title-bar-controls">
+                                            <button aria-label="Close"></button>
+                                        </div>
+                                    </div>
+                                    <div class="window-body">
+                                        <div class="message-box">
+                                            <img src="win10-error-icon.png" alt="Error">
+                                            <div class="message-content">
+                                                <h4>Error</h4>
+                                                <p>This is an error message.</p>
+                                            </div>
+                                        </div>
+                                        <div class="button-group">
+                                            <button class="default">OK</button>
+                                            <button>Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="code-example">
+&lt;div class="dialog-box"&gt;
+    &lt;div class="title-bar"&gt;
+        &lt;div class="title-bar-text"&gt;Dialog Title&lt;/div&gt;
+        &lt;div class="title-bar-controls"&gt;
+            &lt;button aria-label="Close"&gt;&lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="window-body"&gt;
+        &lt;div class="message-box"&gt;
+            &lt;img src="win10-error-icon.png" alt="Error"&gt;
+            &lt;div class="message-content"&gt;
+                &lt;h4&gt;Error&lt;/h4&gt;
+                &lt;p&gt;This is an error message.&lt;/p&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="button-group"&gt;
+            &lt;button class="default"&gt;OK&lt;/button&gt;
+            &lt;button&gt;Cancel&lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="doc-content" id="dark-mode">
+                        <h2>Dark Mode</h2>
+                        <p>10.css includes built-in dark mode support to mimic Windows 10's dark theme. To enable dark mode, simply add the <code>theme-dark</code> class to your container:</p>
+                        
+                        <div class="code-example">
+&lt;div class="xp win10 theme-dark"&gt;
+    &lt;!-- Your content here will appear in dark mode --&gt;
+&lt;/div&gt;
+                        </div>
+                        
+                        <h3>Dynamic Theme Switching</h3>
+                        <p>You can implement theme switching with a small JavaScript function:</p>
+                        
+                        <div class="code-example">
+function toggleTheme() {
+    const container = document.querySelector('.xp.win10');
+    if (container.classList.contains('theme-light')) {
+        container.classList.remove('theme-light');
+        container.classList.add('theme-dark');
+    } else {
+        container.classList.remove('theme-dark');
+        container.classList.add('theme-light');
+    }
+}
+
+// Add a button with this onclick handler
+&lt;button onclick="toggleTheme()"&gt;Toggle Theme&lt;/button&gt;
+                        </div>
+                    </div>
+                    
+                    <div class="doc-content" id="comparison">
+                        <h2>Comparison with XP.css</h2>
+                        <p>10.css is a direct fork of XP.css that maintains complete compatibility while updating the visual style to Windows 10. Here's how they compare:</p>
+                        
+                        <table class="comparison-table" style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                            <thead>
+                                <tr>
+                                    <th style="border: 1px solid #e0e0e0; padding: 10px; text-align: left; background-color: #f0f0f0;">Feature</th>
+                                    <th style="border: 1px solid #e0e0e0; padding: 10px; text-align: left; background-color: #f0f0f0;">XP.css</th>
+                                    <th style="border: 1px solid #e0e0e0; padding: 10px; text-align: left; background-color: #f0f0f0;">10.css</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="border: 1px solid #e0e0e0; padding: 10px; text-align: left;">Visual Style</td>
+                                    <td style="border: 1px solid #e0e0e0; padding: 10px; text-align: left;">Windows XP</td>
+                                    <td style="border: 1px solid #e0e0e0; padding: 10px; text-align: left;">Windows 10</td>
+                                </tr>
+                                <tr>
+                                    <td style="border: 1px solid #e0e0e0; padding: 10px; text-align: left;">Class Structure</td>
+                                    <td style="border: 1px solid #e0e0e0; padding: 10px; text-align: left;">xp</td>
+                                    <td style="border: 1px solid #e0e0e0; padding: 10px; text-align: left;">xp win10</td>
+                                </tr>
+                                <tr>
+                                    <td style="border: 1px solid #e0e0e0; padding: 10px; text-align: left;">Dark Mode</td>
+                                    <td style="border: 1px solid #e0e0e0; padding: 10px; text-align: left;">No</td>
+                                    <td style="border: 1px solid #e0e0e0; padding: 10px; text-align: left;">Yes</td>
+                                </tr>
+                                <tr>
+                                    <td style="border: 1px solid #e0e0e0; padding: 10px; text-align: left;">Dependencies</td>
+                                    <td style="border: 1px solid #e0e0e0; padding: 10px; text-align: left;">None</td>
+                                    <td style="border: 1px solid #e0e0e0; padding: 10px; text-align: left;">None</td>
+                                </tr>
+                                <tr>
+                                    <td style="border: 1px solid #e0e0e0; padding: 10px; text-align: left;">HTML Structure</td>
+                                    <td style="border: 1px solid #e0e0e0; padding: 10px; text-align: left;">Original</td>
+                                    <td style="border: 1px solid #e0e0e0; padding: 10px; text-align: left;">Compatible</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="doc-content" id="download">
+                        <h2>Download</h2>
+                        <p>Get 10.css in multiple ways to suit your project needs:</p>
+                        
+                        <div class="component-grid">
+                            <div class="component-card">
+                                <h4>GitHub Repository</h4>
+                                <p>Clone or download the full repository with all source files.</p>
+                                <a href="https://github.com/apersonwhomakesstuff/10.css" class="main-button github-button" style="margin-top: 10px; display: inline-flex; font-size: 14px; padding: 8px 12px;">
+                                    View on GitHub
+                                </a>
+                            </div>
+                            <div class="component-card">
+                                <h4>Direct Download</h4>
+                                <p>Download the CSS file directly for use in your project.</p>
+                                <a href="https://raw.githubusercontent.com/apersonwhomakesstuff/10.css/main/10.css" class="main-button download-button" style="margin-top: 10px; display: inline-flex; font-size: 14px; padding: 8px 12px;">
+                                    Download CSS File
+                                </a>
+                            </div>
+                            <div class="component-card">
+                                <h4>ZIP Package</h4>
+                                <p>Download a ZIP file containing all necessary files.</p>
+                                <a href="#" id="downloadZipBtn2" class="main-button download-button" style="margin-top: 10px; display: inline-flex; font-size: 14px; padding: 8px 12px;">
+                                    Generate ZIP
+                                </a>
+                            </div>
+                            <div class="component-card">
+                                <h4>CDN Usage</h4>
+                                <p>Include directly from a CDN in your HTML.</p>
+                                <div style="margin-top: 10px; font-family: monospace; font-size: 12px; background: #f5f5f5; padding: 8px; border-radius: 4px; overflow-x: auto;">
+                                    &lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/apersonwhomakesstuff/10.css@main/10.css"&gt;
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>10.css - A direct fork of <a href="https://github.com/botoxparty/XP.css" target="_blank">XP.css</a> | <a href="https://github.com/apersonwhomakesstuff/10.css" target="_blank">GitHub Repository</a></p>
+            <p>XP.css created by <a href="https://github.com/botoxparty" target="_blank">botoxparty</a></p>
+        </footer>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const container = document.querySelector('.xp.win10');
+            if (container.classList.contains('theme-light')) {
+                container.classList.remove('theme-light');
+                container.classList.add('theme-dark');
+                document.body.classList.add('dark-mode');
+            } else {
+                container.classList.remove('theme-dark');
+                container.classList.add('theme-light');
+                document.body.classList.remove('dark-mode');
+            }
+        }
+
+        // Tab navigation
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons and contents
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding content
+                button.classList.add('active');
+                document.getElementById(button.dataset.tab).classList.add('active');
+            });
+        });
+        
+        // Sidebar navigation highlighting on scroll
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('.doc-content');
+            const navLinks = document.querySelectorAll('.sidebar a');
+            
+            let currentSection = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (pageYOffset >= sectionTop - 100) {
+                    currentSection = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${currentSection}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+        
+        // Dynamic ZIP file generation
+        function generateAndDownloadZip() {
+            const downloadBtn = this;
+            const originalText = downloadBtn.innerHTML;
+            
+            downloadBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="spin" style="margin-right: 8px;">
+                    <path d="M12 4V2A10 10 0 0 0 2 12h2a8 8 0 0 1 8-8z"/>
+                </svg>
+                Creating ZIP...
+            `;
+            
+            try {
+                // Create a new JSZip instance
+                const zip = new JSZip();
+                
+                // Add files to the zip
+                Promise.all([
+                    fetch('10.css').then(response => response.text()),
+                    fetch('dist/10.min.css').then(response => response.text()),
+                    fetch('package.json').then(response => response.text()),
+                    fetch('README.md').then(response => response.text()),
+                    fetch('LICENSE').then(response => response.text()),
+                    fetch('win10-error-icon.png').then(response => response.blob()),
+                    fetch('win10-info-icon.png').then(response => response.blob()),
+                    fetch('win10-start-icon.png').then(response => response.blob())
+                ]).then(([css, minCss, pkg, readme, license, errorIcon, infoIcon, startIcon]) => {
+                    // Add files to zip
+                    zip.file("10.css", css);
+                    zip.file("dist/10.min.css", minCss);
+                    zip.file("package.json", pkg);
+                    zip.file("README.md", readme);
+                    zip.file("LICENSE", license);
+                    zip.file("icons/win10-error-icon.png", errorIcon);
+                    zip.file("icons/win10-info-icon.png", infoIcon);
+                    zip.file("icons/win10-start-icon.png", startIcon);
+                    
+                    // Generate the zip file
+                    return zip.generateAsync({type: 'blob'});
+                }).then(content => {
+                    // Trigger download using FileSaver.js
+                    saveAs(content, "10css.zip");
+                    
+                    // Reset button state
+                    downloadBtn.innerHTML = originalText;
+                });
+            } catch (error) {
+                console.error("Error creating ZIP file:", error);
+                downloadBtn.innerHTML = originalText;
+                alert("Failed to create ZIP file. Please try again later.");
+            }
+        }
+        
+        document.getElementById('downloadZipBtn').addEventListener('click', generateAndDownloadZip);
+        document.getElementById('downloadZipBtn2').addEventListener('click', generateAndDownloadZip);
+    </script>
+</body>
+</html>
