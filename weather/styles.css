@@ -210,6 +210,42 @@ body {
     margin-bottom: 2rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.news-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.feed-selector {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+.feed-selector:hover {
+    border-color: var(--accent-color);
+}
+
+.feed-selector:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(6, 214, 160, 0.2);
+}
+
+.feed-selector option {
+    background: var(--surface);
+    color: var(--text-primary);
+    padding: 0.5rem;
 }
 
 .section-header h2 {
@@ -457,6 +493,27 @@ body {
     border-left: 3px solid var(--accent-color);
 }
 
+@supports (-webkit-touch-callout: none) {
+    .app-container {
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+    
+    .app-header {
+        padding-top: calc(1.5rem + env(safe-area-inset-top));
+    }
+}
+
+.location-btn, .refresh-btn, .install-yes, .install-no, .retry-btn {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
 @media (max-width: 768px) {
     .app-header {
         flex-direction: column;
@@ -493,6 +550,26 @@ body {
     
     .install-buttons {
         flex-direction: column;
+    }
+    
+    .location-btn, .refresh-btn, .retry-btn {
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+    
+    .install-yes, .install-no {
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+    
+    .news-controls {
+        justify-content: center;
     }
 }
 
