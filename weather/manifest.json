@@ -2,22 +2,28 @@
     "name": "WeatherNews PWA",
     "short_name": "WeatherNews",
     "description": "Get weather updates and latest tech news from Hacker News",
-    "start_url": "/",
+    "start_url": "./",
     "display": "standalone",
     "background_color": "#0f172a",
     "theme_color": "#1e3a8a",
     "orientation": "portrait-primary",
     "categories": ["weather", "news", "productivity"],
+    "prefer_related_applications": false,
+    "scope": "./",
+    "lang": "en-US",
+    "dir": "ltr",
     "icons": [
         {
             "src": "icon.png",
             "sizes": "192x192",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any maskable"
         },
         {
             "src": "icon.png",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any maskable"
         }
     ],
     "shortcuts": [
@@ -25,7 +31,7 @@
             "name": "Check Weather",
             "short_name": "Weather",
             "description": "Get current weather information",
-            "url": "/?action=weather",
+            "url": "./?action=weather",
             "icons": [
                 {
                     "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><text y='.9em' font-size='90'>🌤️</text></svg>",
@@ -38,7 +44,7 @@
             "name": "Latest News",
             "short_name": "News",
             "description": "Read latest tech news",
-            "url": "/?action=news",
+            "url": "./?action=news",
             "icons": [
                 {
                     "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><text y='.9em' font-size='90'>📰</text></svg>",
