@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI Website Generator — Powered by pollinations.ai</title>
+<style>
+  body, html {
+    margin:0; padding:0; height:100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f3ff;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  header {
+    background: #2f3b85;
+    padding: 12px 20px;
+    color: white;
+    display: flex;
+    align-items: center;
+  }
+  #promptInput {
+    flex: 1;
+    font-size: 1rem;
+    padding: 10px 15px;
+    border-radius: 6px;
+    border: none;
+    outline: none;
+  }
+  #generateBtn {
+    margin-left: 12px;
+    background: #4c57db;
+    border:none;
+    color: white;
+    font-weight: bold;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  #generateBtn:hover {
+    background: #3948b3;
+  }
+  #settingsBtn {
+    margin-left: 12px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: white;
+    font-size: 1.5rem;
+    user-select:none;
+  }
+  #settingsPanel {
+    position: fixed;
+    top: 60px;
+    right: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    padding: 15px 20px;
+    display: none;
+    width: 320px;
+    z-index: 1000;
+  }
+  #settingsPanel label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 6px;
+  }
+  #systemPromptInput {
+    width: 100%;
+    height: 70px;
+    font-size: 0.9rem;
+    border: 1px solid #aaa;
+    border-radius: 6px;
+    padding: 8px 10px;
+    resize: vertical;
+  }
+  #imageModeLabel {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    user-select:none;
+  }
+  #imageModeLabel input {
+    margin-right: 8px;
+  }
+  #container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+  #revisions {
+    width: 280px;
+    background: white;
+    border-right: 1px solid #ccc;
+    overflow-y: auto;
+  }
+  #revisions h2 {
+    margin: 12px;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 8px;
+  }
+  #revisionList {
+    list-style: none;
+    margin: 0; padding: 0;
+  }
+  #revisionList li {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    user-select:none;
+  }
+  #revisionList li:hover, #revisionList li.active {
+    background: #dde3ff;
+  }
+  #mainContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  #previewWrapper {
+    flex: 1;
+    background: white;
+    margin: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+    border: 1px solid #ddd;
+  }
+  #previewFrame {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  #loadingOverlay {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255 255 255 / 0.9);
+    padding: 18px 30px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #4c57db;
+    display: none;
+    z-index: 2000;
+  }
+  #errorMessage {
+    color: red;
+    padding: 10px 20px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <input id="promptInput" placeholder="Enter your website prompt here..." autocomplete="off" />
+  <button id="generateBtn">Generate</button>
+  <button id="settingsBtn" title="Settings ⚙️">&#9881;</button>
+</header>
+
+<div id="settingsPanel">
+  <label for="systemPromptInput">System Prompt (AI instructions):</label>
+  <textarea id="systemPromptInput" spellcheck="false">You are a HIGHLY INTELLIGENT AI BOT who ONLY gives HTML text, You will do YOUR BEST AND YOU ALWAYS GIVE GOOD CODE, BAD CODE MEANS DEATH, ALWAYS MAKE GOOD STYLING, GOOD HTML, GOOD DHTML, GOOD JAVASCRIPT, MAKE IT GOOD, OR DEATH. GET-MODULES: esm.sh. RECCOMENDED MODEULES: esm.sh/typescript, esm.sh/react.</textarea>
+  <label id="imageModeLabel"><input type="checkbox" id="imageModeCheckbox" /> Generate image instead of HTML</label>
+</div>
+
+<div id="container">
+  <aside id="revisions">
+    <h2>Revisions</h2>
+    <ul id="revisionList"></ul>
+  </aside>
+
+  <section id="mainContent">
+    <div id="previewWrapper">
+      <iframe id="previewFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+      <div id="loadingOverlay">Generating...</div>
+    </div>
+    <div id="errorMessage"></div>
+  </section>
+</div>
+
+<script>
+  const promptInput = document.getElementById('promptInput');
+  const generateBtn = document.getElementById('generateBtn');
+  const previewFrame = document.getElementById('previewFrame');
+  const loadingOverlay = document.getElementById('loadingOverlay');
+  const errorMessage = document.getElementById('errorMessage');
+  const revisionList = document.getElementById('revisionList');
+  const settingsBtn = document.getElementById('settingsBtn');
+  const settingsPanel = document.getElementById('settingsPanel');
+  const systemPromptInput = document.getElementById('systemPromptInput');
+  const imageModeCheckbox = document.getElementById('imageModeCheckbox');
+
+  let revisions = [];
+  let currentContent = ''; // stores current full HTML page content
+
+  settingsBtn.addEventListener('click', () => {
+    settingsPanel.style.display = settingsPanel.style.display === 'block' ? 'none' : 'block';
+  });
+
+  function addRevision(prompt, content) {
+    revisions.push({prompt, content});
+    renderRevisionList();
+    selectRevision(revisions.length - 1);
+  }
+
+  function renderRevisionList() {
+    revisionList.innerHTML = '';
+    revisions.forEach((rev, idx) => {
+      const li = document.createElement('li');
+      li.textContent = `${idx + 1}: ${rev.prompt.length > 40 ? rev.prompt.slice(0, 37) + '...' : rev.prompt}`;
+      li.dataset.index = idx;
+      if(idx === revisions.length - 1) li.classList.add('active');
+      li.onclick = () => selectRevision(idx);
+      revisionList.appendChild(li);
+    });
+  }
+
+  function selectRevision(index) {
+    if(index < 0 || index >= revisions.length) return;
+    revisions.forEach((_, i) => {
+      revisionList.children[i].classList.toggle('active', i === index);
+    });
+    const rev = revisions[index];
+    previewFrame.srcdoc = rev.content;
+    currentContent = rev.content; // update currentContent to selected revision's full HTML
+  }
+
+  async function generate() {
+    const userPrompt = promptInput.value.trim();
+    if(!userPrompt) {
+      alert('Please enter a prompt!');
+      return;
+    }
+    errorMessage.style.display = 'none';
+    loadingOverlay.style.display = 'block';
+    previewFrame.srcdoc = '';
+
+    const systemPrompt = encodeURIComponent(systemPromptInput.value.trim() || 'You are a HIGHLY INTELLIGENT AI BOT who ONLY gives HTML text, You will do YOUR BEST AND YOU ALWAYS GIVE GOOD CODE, BAD CODE MEANS DEATH, ALWAYS MAKE GOOD STYLING, GOOD HTML, GOOD DHTML, GOOD JAVASCRIPT, MAKE IT GOOD, OR DEATH. GET-MODULES: esm.sh. RECCOMENDED MODEULES: esm.sh/typescript, esm.sh/react.');
+    const useImageMode = imageModeCheckbox.checked;
+
+    if(useImageMode) {
+      // Image generation mode
+      try {
+        const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(userPrompt)}`;
+        // Just show the image inside iframe for demo
+        previewFrame.srcdoc = `<html><body style="margin:0;display:flex;justify-content:center;align-items:center;background:#f0f3ff;"><img src="${imageUrl}" alt="Generated image" style="max-width:100%;max-height:100vh;object-fit:contain;" /></body></html>`;
+        addRevision(userPrompt, previewFrame.srcdoc);
+      } catch(e) {
+        errorMessage.textContent = 'Error generating image: ' + e.message;
+        errorMessage.style.display = 'block';
+      } finally {
+        loadingOverlay.style.display = 'none';
+      }
+      return;
+    }
+
+    // For HTML generation with revisions building on last content
+    try {
+      let combinedPrompt = '';
+      if(currentContent) {
+        combinedPrompt = `
+Given this existing HTML page:
+
+${currentContent}
+
+Update the page based on this new request:
+
+${userPrompt}
+
+Provide the full updated HTML page only.
+`;
+      } else {
+        combinedPrompt = `
+Create a complete HTML page based on this request:
+
+${userPrompt}
+`;
+      }
+
+      const encodedPrompt = encodeURIComponent(combinedPrompt.trim());
+
+      // Use text.pollinations.ai API, send system prompt and combined prompt
+      // Pollinations uses prompt param and system param in query string, no key needed
+      const url = `https://text.pollinations.ai/${encodedPrompt}?system=${systemPrompt}`;
+
+      const response = await fetch(url);
+      if(!response.ok) throw new Error(`HTTP error ${response.status}`);
+
+      const textResult = await response.text();
+
+      if(!textResult || !textResult.includes('<html')) throw new Error('AI response does not contain valid HTML.');
+
+      // Save the new full page as currentContent
+      currentContent = textResult;
+
+      addRevision(userPrompt, currentContent);
+
+    } catch(err) {
+      errorMessage.textContent = 'Error generating website: ' + err.message;
+      errorMessage.style.display = 'block';
+    } finally {
+      loadingOverlay.style.display = 'none';
+    }
+  }
+
+  generateBtn.addEventListener('click', generate);
+  promptInput.addEventListener('keydown', e => {
+    if(e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      generate();
+    }
+  });
+
+  // Initialize with empty revision so user sees blank page
+  addRevision('Initial empty page', '<!DOCTYPE html><html><head><title>Start</title></head><body><h1>Start your prompt above.</h1></body></html>');
+
+</script>
+</body>
+</html>
