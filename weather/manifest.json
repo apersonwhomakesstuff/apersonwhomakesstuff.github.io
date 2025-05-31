@@ -2,7 +2,7 @@
     "name": "WeatherNews PWA",
     "short_name": "WeatherNews",
     "description": "Get weather updates and latest tech news from Hacker News",
-    "start_url": "./",
+    "start_url": "./index.html",
     "display": "standalone",
     "background_color": "#0f172a",
     "theme_color": "#1e3a8a",
