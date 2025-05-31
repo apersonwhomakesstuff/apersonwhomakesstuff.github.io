@@ -1,0 +1,83 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherNews - PWA</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+    <meta name="theme-color" content="#1e3a8a">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>WeatherNews</h1>
+            <div class="location-container">
+                <button id="location-btn" class="location-btn">📍 Get Location</button>
+                <span id="location-name" class="location-name"></span>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Weather Section -->
+            <section class="weather-section">
+                <div class="weather-card">
+                    <div class="weather-loading" id="weather-loading">
+                        <div class="loading-spinner"></div>
+                        <p>Loading weather...</p>
+                    </div>
+                    <div class="weather-content" id="weather-content" style="display: none;">
+                        <div class="current-weather">
+                            <div class="weather-icon" id="weather-icon">🌤️</div>
+                            <div class="weather-info">
+                                <div class="temperature" id="temperature">--°</div>
+                                <div class="weather-description" id="weather-description">--</div>
+                            </div>
+                        </div>
+                        <div class="weather-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Feels like</span>
+                                <span class="detail-value" id="feels-like">--°</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Humidity</span>
+                                <span class="detail-value" id="humidity">--%</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Wind</span>
+                                <span class="detail-value" id="wind-speed">-- mph</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- News Section -->
+            <section class="news-section">
+                <div class="section-header">
+                    <h2>Latest Tech News</h2>
+                    <button id="refresh-news" class="refresh-btn">🔄</button>
+                </div>
+                <div class="news-loading" id="news-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading news from Hacker News...</p>
+                </div>
+                <div class="news-container" id="news-container"></div>
+            </section>
+        </main>
+
+        <div class="install-prompt" id="install-prompt" style="display: none;">
+            <div class="install-content">
+                <h3>Install WeatherNews</h3>
+                <p>Get quick access to weather and tech news!</p>
+                <div class="install-buttons">
+                    <button id="install-btn" class="install-yes">Install</button>
+                    <button id="install-dismiss" class="install-no">Not now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
