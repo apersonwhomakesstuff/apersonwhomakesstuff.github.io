@@ -1,12 +1,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WeatherNews - PWA</title>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="styles.css">
     <meta name="theme-color" content="#1e3a8a">
     <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
+    
+    <!-- iOS PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="WeatherNews">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="icon.png">
+    
+    <!-- Android PWA Support -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="WeatherNews">
+    
+    <!-- Microsoft Tiles -->
+    <meta name="msapplication-TileColor" content="#1e3a8a">
+    <meta name="msapplication-TileImage" content="icon.png">
 </head>
 <body>
     <div class="app-container">
@@ -55,12 +72,23 @@
             <!-- News Section -->
             <section class="news-section">
                 <div class="section-header">
-                    <h2>Latest Tech News</h2>
-                    <button id="refresh-news" class="refresh-btn">🔄</button>
+                    <h2>Latest from Hacker News</h2>
+                    <div class="news-controls">
+                        <select id="feed-selector" class="feed-selector">
+                            <option value="frontpage">Front Page</option>
+                            <option value="ask">Ask HN</option>
+                            <option value="show">Show HN</option>
+                            <option value="best">Best</option>
+                            <option value="newest">Newest</option>
+                            <option value="jobs">Jobs</option>
+                            <option value="bestcomments">Best Comments</option>
+                        </select>
+                        <button id="refresh-news" class="refresh-btn">🔄</button>
+                    </div>
                 </div>
                 <div class="news-loading" id="news-loading">
                     <div class="loading-spinner"></div>
-                    <p>Loading news from Hacker News...</p>
+                    <p>Loading latest stories from Hacker News...</p>
                 </div>
                 <div class="news-container" id="news-container"></div>
             </section>
