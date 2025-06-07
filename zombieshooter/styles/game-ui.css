@@ -1,0 +1,27 @@
+#gameUI {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #f1c40f;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    font-size: 24px;
+    text-shadow: 2px 2px 4px #000;
+    display: flex; 
+    align-items: center;
+    gap: 20px;
+    z-index: 50;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 8px;
+}
+
+#gameUI span { 
+    display: inline;
+}
+
+#gameUI img {
+    margin-left: 10px;
+    width: 30px;
+    height: 30px;
+}

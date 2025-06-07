@@ -1,0 +1,83 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Add PWA manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <title>Zombie Shooter</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="stylesheet" href="/styles/menu.css">
+    <link rel="stylesheet" href="/styles/settings.css">
+    <link rel="stylesheet" href="/styles/game-ui.css">
+</head>
+<body>
+    <!-- Main Menu -->
+    <div id="mainMenu">
+        <div class="menu-container">
+            <h1>Zombie Shooter</h1>
+            <div class="button-group">
+                <button id="startGameBtn">Start Game</button>
+                <button id="settingsBtn">Settings</button>
+                <button id="highScoresBtn">High Scores</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal">
+        <div id="settingsContent">
+            <h2>Game Settings</h2>
+            <div class="setting-toggle">
+                <span>Music</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="musicToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-toggle">
+                <span>WASD Movement</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="platformerToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-toggle">
+                <span>Hard Mode</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="hardModeToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <button id="saveSettingsBtn">Save Settings</button>
+            <button id="cancelSettingsBtn">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Game UI -->
+    <div id="gameUI">
+        <img src="/zombie.png" width="30" height="30">
+        <div>Current Score: <span id="score">0</span>&nbsp;&nbsp;- &nbsp;</div>
+        <div>High Score: <span id="highScore">0</span> </div>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Import modules -->
+    <script type="importmap">
+    {
+        "imports": {
+            "/modules/settings.js": "./modules/settings.js",
+            "/modules/audio.js": "./modules/audio.js",
+            "/modules/player.js": "./modules/player.js",
+            "/modules/zombies.js": "./modules/zombies.js",
+            "/modules/bullets.js": "./modules/bullets.js",
+            "/modules/game.js": "./modules/game.js",
+            "/modules/utils.js": "./modules/utils.js",
+            "/modules/collision.js": "./modules/collision.js"
+        }
+    }
+    </script>
+    
+    <!-- Main game script -->
+    <script type="module" src="/modules/main.js"></script>
+</body>
+</html>
