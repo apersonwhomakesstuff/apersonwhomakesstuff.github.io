@@ -19,6 +19,7 @@
     color: white;
     display: flex;
     align-items: center;
+    z-index: 1001; /* Ensure header is above settings panel */
   }
   #promptInput {
     flex: 1;
@@ -60,7 +61,7 @@
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     padding: 15px 20px;
     display: none;
-    width: 320px;
+    width: 450px; /* Increased width */
     z-index: 1000;
   }
   #settingsPanel label {
@@ -70,12 +71,15 @@
   }
   #systemPromptInput {
     width: 100%;
-    height: 150px;
+    box-sizing: border-box;
+    height: 400px; /* Increased height */
     font-size: 0.9rem;
     border: 1px solid #aaa;
     border-radius: 6px;
     padding: 8px 10px;
     resize: vertical;
+    white-space: pre;
+    font-family: monospace;
   }
   #imageModeLabel {
     margin-top: 12px;
@@ -165,15 +169,210 @@
 
 <div id="settingsPanel">
   <label for="systemPromptInput">System Prompt (AI instructions):</label>
-  <textarea id="systemPromptInput" spellcheck="false">You are an expert web developer AI. Your task is to generate a complete, single-file HTML webpage based on the user's prompt.
+  <textarea id="systemPromptInput" spellcheck="false">You are an expert web developer AI. Your primary task is to modify the HTML code provided below based on the user's request.
 
 **Key Instructions:**
-1.  **Single File:** All HTML, CSS, and JavaScript must be included in one single `.html` file. Use `<style>` tags for CSS and `<script>` tags for JavaScript.
-2.  **Modern Design:** Employ modern and responsive design principles.
-3.  **Self-Contained:** Do not use external CSS or JS files unless specified. All assets should be inline or from a CDN.
-4.  **Raw HTML Output:** Provide ONLY the raw HTML code for the webpage.
-5.  **NO MARKDOWN:** **DO NOT** wrap the code in markdown code blocks (e.g., ```html).
-6.  **REQUIRED TAGS:** You MUST start your entire response with the tag `.//code below` on its own line and end your entire response with the tag `.//code above` on its own line.
+1.  **Analyze the Request:** Carefully read the user's prompt to understand the desired changes.
+2.  **Modify the Code:** Apply the changes directly to the HTML code provided within this prompt.
+3.  **Return Full Code:** ALWAYS return the complete, single-file HTML. This includes all original code plus the new modifications.
+4.  **Raw HTML Output:** Provide ONLY the raw HTML code. **DO NOT** wrap the code in markdown blocks (e.g., ```html).
+
+--- BEGIN CODE TO MODIFY ---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI Website Generator — Powered by pollinations.ai</title>
+<style>
+  body, html {
+    margin:0; padding:0; height:100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f3ff;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  header {
+    background: #2f3b85;
+    padding: 12px 20px;
+    color: white;
+    display: flex;
+    align-items: center;
+    z-index: 1001; /* Ensure header is above settings panel */
+  }
+  #promptInput {
+    flex: 1;
+    font-size: 1rem;
+    padding: 10px 15px;
+    border-radius: 6px;
+    border: none;
+    outline: none;
+  }
+  #generateBtn {
+    margin-left: 12px;
+    background: #4c57db;
+    border:none;
+    color: white;
+    font-weight: bold;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  #generateBtn:hover {
+    background: #3948b3;
+  }
+  #settingsBtn {
+    margin-left: 12px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: white;
+    font-size: 1.5rem;
+    user-select:none;
+  }
+  #settingsPanel {
+    position: fixed;
+    top: 60px;
+    right: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    padding: 15px 20px;
+    display: none;
+    width: 450px; /* Increased width */
+    z-index: 1000;
+  }
+  #settingsPanel label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 6px;
+  }
+  #systemPromptInput {
+    width: 100%;
+    box-sizing: border-box;
+    height: 400px; /* Increased height */
+    font-size: 0.9rem;
+    border: 1px solid #aaa;
+    border-radius: 6px;
+    padding: 8px 10px;
+    resize: vertical;
+    white-space: pre;
+    font-family: monospace;
+  }
+  #imageModeLabel {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    user-select:none;
+  }
+  #imageModeLabel input {
+    margin-right: 8px;
+  }
+  #container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+  #revisions {
+    width: 280px;
+    background: white;
+    border-right: 1px solid #ccc;
+    overflow-y: auto;
+  }
+  #revisions h2 {
+    margin: 12px;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 8px;
+  }
+  #revisionList {
+    list-style: none;
+    margin: 0; padding: 0;
+  }
+  #revisionList li {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    user-select:none;
+  }
+  #revisionList li:hover, #revisionList li.active {
+    background: #dde3ff;
+  }
+  #mainContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  #previewWrapper {
+    flex: 1;
+    background: white;
+    margin: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+    border: 1px solid #ddd;
+  }
+  #previewFrame {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  #loadingOverlay {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255 255 255 / 0.9);
+    padding: 18px 30px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #4c57db;
+    display: none;
+    z-index: 2000;
+  }
+  #errorMessage {
+    color: red;
+    padding: 10px 20px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <input id="promptInput" placeholder="Enter your website prompt here..." autocomplete="off" />
+  <button id="generateBtn">Generate</button>
+  <button id="settingsBtn" title="Settings ⚙️">&#9881;</button>
+</header>
+
+<div id="settingsPanel">
+  <label for="systemPromptInput">System Prompt (AI instructions):</label>
+  <textarea id="systemPromptInput" spellcheck="false"></textarea>
+  <label id="imageModeLabel"><input type="checkbox" id="imageModeCheckbox" /> Generate image instead of HTML</label>
+</div>
+
+<div id="container">
+  <aside id="revisions">
+    <h2>Revisions</h2>
+    <ul id="revisionList"></ul>
+  </aside>
+
+  <section id="mainContent">
+    <div id="previewWrapper">
+      <iframe id="previewFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+      <div id="loadingOverlay">Generating...</div>
+    </div>
+    <div id="errorMessage"></div>
+  </section>
+</div>
+
+<script>
+  // This script will be populated by the logic below
+</script>
+</body>
+</html>
 </textarea>
   <label id="imageModeLabel"><input type="checkbox" id="imageModeCheckbox" /> Generate image instead of HTML</label>
 </div>
@@ -206,17 +405,12 @@
   const imageModeCheckbox = document.getElementById('imageModeCheckbox');
 
   let revisions = [];
-  let currentContent = ''; // stores current full HTML page content
+  let currentContent = '';
 
-  const defaultSystemPrompt = `You are an expert web developer AI. Your task is to generate a complete, single-file HTML webpage based on the user's prompt.
+  // Set the initial content of the system prompt textarea from its own content
+  // This is a bit meta: the text is defined in the HTML, and this script reads it.
+  systemPromptInput.value = systemPromptInput.textContent.trim();
 
-**Key Instructions:**
-1.  **Single File:** All HTML, CSS, and JavaScript must be included in one single \`.html\` file. Use \`<style>\` tags for CSS and \`<script>\` tags for JavaScript.
-2.  **Modern Design:** Employ modern and responsive design principles.
-3.  **Self-Contained:** Do not use external CSS or JS files unless specified. All assets should be inline or from a CDN.
-4.  **Raw HTML Output:** Provide ONLY the raw HTML code for the webpage.
-5.  **NO MARKDOWN:** **DO NOT** wrap the code in markdown code blocks (e.g., \`\`\`html).
-6.  **REQUIRED TAGS:** You MUST start your entire response with the tag \`.//code below\` on its own line and end your entire response with the tag \`.//code above\` on its own line.`;
 
   settingsBtn.addEventListener('click', () => {
     settingsPanel.style.display = settingsPanel.style.display === 'block' ? 'none' : 'block';
@@ -247,7 +441,20 @@
     });
     const rev = revisions[index];
     previewFrame.srcdoc = rev.content;
-    currentContent = rev.content; // update currentContent to selected revision's full HTML
+    currentContent = rev.content;
+    
+    // When selecting a revision, update the system prompt to contain the code of that revision
+    const newSystemPrompt = `You are an expert web developer AI. Your primary task is to modify the HTML code provided below based on the user's request.
+
+**Key Instructions:**
+1.  **Analyze the Request:** Carefully read the user's prompt to understand the desired changes.
+2.  **Modify the Code:** Apply the changes directly to the HTML code provided within this prompt.
+3.  **Return Full Code:** ALWAYS return the complete, single-file HTML. This includes all original code plus the new modifications.
+4.  **Raw HTML Output:** Provide ONLY the raw HTML code. **DO NOT** wrap the code in markdown blocks (e.g., \`\`\`html).
+
+--- BEGIN CODE TO MODIFY ---
+${rev.content}`;
+    systemPromptInput.value = newSystemPrompt;
   }
 
   async function generate() {
@@ -260,7 +467,7 @@
     loadingOverlay.style.display = 'block';
     previewFrame.srcdoc = '';
 
-    const systemPrompt = encodeURIComponent(systemPromptInput.value.trim() || defaultSystemPrompt);
+    const systemPrompt = encodeURIComponent(systemPromptInput.value.trim());
     const useImageMode = imageModeCheckbox.checked;
 
     if(useImageMode) {
@@ -278,51 +485,21 @@
       return;
     }
 
-    // For HTML generation with revisions building on last content
+    // HTML generation
     try {
-      let combinedPrompt = '';
-      if(currentContent) {
-        combinedPrompt = `
-Given this existing HTML page:
-
-${currentContent}
-
-Update the page based on this new request:
-
-${userPrompt}
-
-Provide the full updated HTML page only.
-`;
-      } else {
-        combinedPrompt = `
-Create a complete HTML page based on this request:
-
-${userPrompt}
-`;
-      }
-
-      const encodedPrompt = encodeURIComponent(combinedPrompt.trim());
+      const encodedPrompt = encodeURIComponent(userPrompt);
       const url = `https://text.pollinations.ai/${encodedPrompt}?system=${systemPrompt}`;
 
       const response = await fetch(url);
       if(!response.ok) throw new Error(`HTTP error ${response.status}`);
 
-      let textResult = await response.text();
-      
-      // Clean the response to get only the code between the tags
-      const codeStartTag = ".//code below";
-      const codeEndTag = ".//code above";
+      const textResult = await response.text();
 
-      if (textResult.includes(codeStartTag) && textResult.includes(codeEndTag)) {
-          textResult = textResult.split(codeStartTag)[1].split(codeEndTag)[0].trim();
+      if(!textResult || !textResult.includes('<html')) {
+          throw new Error('AI response does not appear to be valid HTML.');
       }
-
-      if(!textResult || !textResult.includes('<html')) throw new Error('AI response does not contain valid HTML.');
-
-      // Save the new full page as currentContent
-      currentContent = textResult;
-
-      addRevision(userPrompt, currentContent);
+      
+      addRevision(userPrompt, textResult);
 
     } catch(err) {
       errorMessage.textContent = 'Error generating website: ' + err.message;
@@ -340,8 +517,9 @@ ${userPrompt}
     }
   });
 
-  // Initialize with empty revision so user sees blank page
-  addRevision('Initial empty page', '<!DOCTYPE html><html><head><title>Start</title></head><body><h1 style="font-family: sans-serif; text-align: center; margin-top: 2rem;">Start your prompt above.</h1></body></html>');
+  // Initialize with the current page's own source code as the first revision
+  const initialContent = document.documentElement.outerHTML;
+  addRevision('Initial state', initialContent);
 
 </script>
 </body>
