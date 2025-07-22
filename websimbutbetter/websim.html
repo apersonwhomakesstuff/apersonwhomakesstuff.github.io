@@ -70,7 +70,7 @@
   }
   #systemPromptInput {
     width: 100%;
-    height: 70px;
+    height: 150px;
     font-size: 0.9rem;
     border: 1px solid #aaa;
     border-radius: 6px;
@@ -165,7 +165,16 @@
 
 <div id="settingsPanel">
   <label for="systemPromptInput">System Prompt (AI instructions):</label>
-  <textarea id="systemPromptInput" spellcheck="false">You are a HIGHLY INTELLIGENT AI BOT who ONLY gives HTML text, You will do YOUR BEST AND YOU ALWAYS GIVE GOOD CODE, BAD CODE MEANS DEATH, ALWAYS MAKE GOOD STYLING, GOOD HTML, GOOD DHTML, GOOD JAVASCRIPT, MAKE IT GOOD, OR DEATH. GET-MODULES: esm.sh. RECCOMENDED MODEULES: esm.sh/typescript, esm.sh/react.</textarea>
+  <textarea id="systemPromptInput" spellcheck="false">You are an expert web developer AI. Your task is to generate a complete, single-file HTML webpage based on the user's prompt.
+
+**Key Instructions:**
+1.  **Single File:** All HTML, CSS, and JavaScript must be included in one single `.html` file. Use `<style>` tags for CSS and `<script>` tags for JavaScript.
+2.  **Modern Design:** Employ modern and responsive design principles.
+3.  **Self-Contained:** Do not use external CSS or JS files unless specified. All assets should be inline or from a CDN.
+4.  **Raw HTML Output:** Provide ONLY the raw HTML code for the webpage.
+5.  **NO MARKDOWN:** **DO NOT** wrap the code in markdown code blocks (e.g., ```html).
+6.  **REQUIRED TAGS:** You MUST start your entire response with the tag `.//code below` on its own line and end your entire response with the tag `.//code above` on its own line.
+</textarea>
   <label id="imageModeLabel"><input type="checkbox" id="imageModeCheckbox" /> Generate image instead of HTML</label>
 </div>
 
@@ -198,6 +207,16 @@
 
   let revisions = [];
   let currentContent = ''; // stores current full HTML page content
+
+  const defaultSystemPrompt = `You are an expert web developer AI. Your task is to generate a complete, single-file HTML webpage based on the user's prompt.
+
+**Key Instructions:**
+1.  **Single File:** All HTML, CSS, and JavaScript must be included in one single \`.html\` file. Use \`<style>\` tags for CSS and \`<script>\` tags for JavaScript.
+2.  **Modern Design:** Employ modern and responsive design principles.
+3.  **Self-Contained:** Do not use external CSS or JS files unless specified. All assets should be inline or from a CDN.
+4.  **Raw HTML Output:** Provide ONLY the raw HTML code for the webpage.
+5.  **NO MARKDOWN:** **DO NOT** wrap the code in markdown code blocks (e.g., \`\`\`html).
+6.  **REQUIRED TAGS:** You MUST start your entire response with the tag \`.//code below\` on its own line and end your entire response with the tag \`.//code above\` on its own line.`;
 
   settingsBtn.addEventListener('click', () => {
     settingsPanel.style.display = settingsPanel.style.display === 'block' ? 'none' : 'block';
@@ -241,14 +260,13 @@
     loadingOverlay.style.display = 'block';
     previewFrame.srcdoc = '';
 
-    const systemPrompt = encodeURIComponent(systemPromptInput.value.trim() || 'You are a HIGHLY INTELLIGENT AI BOT who ONLY gives HTML text, You will do YOUR BEST AND YOU ALWAYS GIVE GOOD CODE, BAD CODE MEANS DEATH, ALWAYS MAKE GOOD STYLING, GOOD HTML, GOOD DHTML, GOOD JAVASCRIPT, MAKE IT GOOD, OR DEATH. GET-MODULES: esm.sh. RECCOMENDED MODEULES: esm.sh/typescript, esm.sh/react.');
+    const systemPrompt = encodeURIComponent(systemPromptInput.value.trim() || defaultSystemPrompt);
     const useImageMode = imageModeCheckbox.checked;
 
     if(useImageMode) {
       // Image generation mode
       try {
         const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(userPrompt)}`;
-        // Just show the image inside iframe for demo
         previewFrame.srcdoc = `<html><body style="margin:0;display:flex;justify-content:center;align-items:center;background:#f0f3ff;"><img src="${imageUrl}" alt="Generated image" style="max-width:100%;max-height:100vh;object-fit:contain;" /></body></html>`;
         addRevision(userPrompt, previewFrame.srcdoc);
       } catch(e) {
@@ -284,15 +302,20 @@ ${userPrompt}
       }
 
       const encodedPrompt = encodeURIComponent(combinedPrompt.trim());
-
-      // Use text.pollinations.ai API, send system prompt and combined prompt
-      // Pollinations uses prompt param and system param in query string, no key needed
       const url = `https://text.pollinations.ai/${encodedPrompt}?system=${systemPrompt}`;
 
       const response = await fetch(url);
       if(!response.ok) throw new Error(`HTTP error ${response.status}`);
 
-      const textResult = await response.text();
+      let textResult = await response.text();
+      
+      // Clean the response to get only the code between the tags
+      const codeStartTag = ".//code below";
+      const codeEndTag = ".//code above";
+
+      if (textResult.includes(codeStartTag) && textResult.includes(codeEndTag)) {
+          textResult = textResult.split(codeStartTag)[1].split(codeEndTag)[0].trim();
+      }
 
       if(!textResult || !textResult.includes('<html')) throw new Error('AI response does not contain valid HTML.');
 
@@ -318,7 +341,7 @@ ${userPrompt}
   });
 
   // Initialize with empty revision so user sees blank page
-  addRevision('Initial empty page', '<!DOCTYPE html><html><head><title>Start</title></head><body><h1>Start your prompt above.</h1></body></html>');
+  addRevision('Initial empty page', '<!DOCTYPE html><html><head><title>Start</title></head><body><h1 style="font-family: sans-serif; text-align: center; margin-top: 2rem;">Start your prompt above.</h1></body></html>');
 
 </script>
 </body>
