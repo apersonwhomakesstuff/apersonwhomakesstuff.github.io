@@ -2,140 +2,103 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>P2P WebRTC Chat Room</title>
-  <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <title>Pure WebRTC Chat</title>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #111;
-      color: #eee;
-      padding: 2em;
-      display: flex;
-      justify-content: center;
-    }
-    #app {
-      width: 100%;
-      max-width: 600px;
-    }
-    h2 {
-      text-align: center;
-    }
-    #chat {
-      background: #222;
-      padding: 1em;
-      height: 300px;
-      overflow-y: auto;
-      border-radius: 5px;
-      margin-bottom: 1em;
-    }
-    input, button {
-      width: 100%;
-      padding: 0.5em;
-      margin-top: 0.5em;
-      border-radius: 5px;
-      border: none;
-    }
-    button {
-      background: #4caf50;
-      color: white;
-      font-weight: bold;
-    }
-    #status {
-      text-align: center;
-      margin-top: 10px;
-      font-size: 0.9em;
-      color: #4caf50;
-    }
+    body { background: #111; color: #eee; font-family: sans-serif; padding: 2em; }
+    #chat { background: #222; padding: 1em; height: 300px; overflow-y: auto; border-radius: 5px; margin-bottom: 1em; }
+    input, button { padding: 0.5em; border-radius: 4px; border: none; width: 100%; margin-top: 0.5em; }
+    button { background: #4caf50; color: white; font-weight: bold; cursor: pointer; }
+    h2 { text-align: center; }
   </style>
 </head>
 <body>
-  <div id="app">
-    <h2>🟢 P2P WebRTC Chat Room</h2>
-    <div id="chat"></div>
-    <input id="name" placeholder="Your name..." />
-    <input id="msg" placeholder="Message..." />
-    <button id="send">Send</button>
-    <div id="status">Connecting...</div>
-  </div>
+  <h2>🧪 Pure WebRTC Chat (Same Browser Tabs)</h2>
+  <div id="chat"></div>
+  <input id="name" placeholder="Your name..." />
+  <input id="msg" placeholder="Message..." />
+  <button id="send">Send</button>
 
   <script>
-    const HOST_ID = "p2p-chat-room";
-    const isHost = location.hash === "#host";
     const chat = document.getElementById("chat");
     const nameInput = document.getElementById("name");
     const msgInput = document.getElementById("msg");
     const sendBtn = document.getElementById("send");
-    const status = document.getElementById("status");
 
-    const peer = new Peer(isHost ? HOST_ID : undefined, {
-      debug: 2
-    });
+    let dc, pc;
+    const channel = new BroadcastChannel("webrtc-signal");
 
-    let connections = [];
-    let conn;
-
-    function log(msg, sender = "System") {
-      chat.innerHTML += `<div><strong>${sender}:</strong> ${msg}</div>`;
+    function log(msg, who = "System") {
+      chat.innerHTML += `<div><strong>${who}:</strong> ${msg}</div>`;
       chat.scrollTop = chat.scrollHeight;
     }
 
-    // Handle chat input
-    sendBtn.onclick = () => {
-      const name = nameInput.value.trim() || "Anonymous";
-      const text = msgInput.value.trim();
-      if (!text) return;
-      const message = { name, text };
-      log(text, name);
-      msgInput.value = "";
+    function createPeer(isCaller) {
+      pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
 
-      if (isHost) {
-        connections.forEach(c => c.open && c.send(message));
-      } else if (conn && conn.open) {
-        conn.send(message);
+      if (isCaller) {
+        dc = pc.createDataChannel("chat");
+        setupDataChannel(dc);
+      } else {
+        pc.ondatachannel = e => {
+          dc = e.channel;
+          setupDataChannel(dc);
+        };
+      }
+
+      pc.onicecandidate = e => {
+        if (e.candidate) {
+          channel.postMessage({ type: "candidate", candidate: e.candidate });
+        }
+      };
+
+      if (isCaller) {
+        pc.createOffer()
+          .then(offer => pc.setLocalDescription(offer))
+          .then(() => {
+            channel.postMessage({ type: "offer", sdp: pc.localDescription });
+          });
+      }
+    }
+
+    function setupDataChannel(channel) {
+      channel.onmessage = e => {
+        const { name, text } = JSON.parse(e.data);
+        log(text, name);
+      };
+    }
+
+    sendBtn.onclick = () => {
+      const name = nameInput.value || "Anonymous";
+      const text = msgInput.value;
+      msgInput.value = "";
+      if (dc && dc.readyState === "open") {
+        dc.send(JSON.stringify({ name, text }));
+        log(text, name);
+      } else {
+        log("⚠️ Not connected");
       }
     };
 
-    // Hosting
-    peer.on("open", id => {
-      if (isHost) {
-        status.textContent = `Hosting as "${HOST_ID}"`;
-      } else {
-        conn = peer.connect(HOST_ID);
-        conn.on("open", () => {
-          status.textContent = `Connected to room`;
-        });
-        conn.on("data", data => {
-          log(data.text, data.name);
-        });
-        conn.on("close", () => {
-          status.textContent = `🔌 Disconnected from room.`;
-        });
+    // Listen for signaling messages
+    channel.onmessage = async e => {
+      const data = e.data;
+      if (data.type === "offer") {
+        createPeer(false);
+        await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        channel.postMessage({ type: "answer", sdp: pc.localDescription });
+      } else if (data.type === "answer") {
+        await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+      } else if (data.type === "candidate") {
+        try {
+          await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+        } catch (e) {}
       }
-    });
+    };
 
-    // Accept clients if host
-    if (isHost) {
-      peer.on("connection", c => {
-        connections.push(c);
-        c.on("data", data => {
-          log(data.text, data.name);
-          // rebroadcast
-          connections.forEach(other => {
-            if (other !== c && other.open) {
-              other.send(data);
-            }
-          });
-        });
-        c.on("close", () => {
-          connections = connections.filter(x => x !== c);
-        });
-      });
-    }
-
-    peer.on("error", err => {
-      status.textContent = "❌ Error: " + err.message;
-      console.error(err);
-    });
+    // Start caller
+    createPeer(true);
   </script>
 </body>
 </html>
