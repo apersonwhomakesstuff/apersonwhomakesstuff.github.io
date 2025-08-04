@@ -1,158 +1,141 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>P2P Chat Room</title>
+  <title>P2P WebRTC Chat Room</title>
   <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #222;
-      color: #f0f0f0;
-      margin: 0;
+      background: #111;
+      color: #eee;
       padding: 2em;
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      justify-content: center;
     }
-    #container {
+    #app {
       width: 100%;
       max-width: 600px;
-      background: #333;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
     h2 {
       text-align: center;
-      margin-bottom: 1em;
     }
     #chat {
-      width: 100%;
+      background: #222;
+      padding: 1em;
       height: 300px;
-      background: #111;
-      border: none;
-      padding: 10px;
-      border-radius: 5px;
-      color: #fff;
       overflow-y: auto;
-      margin-bottom: 10px;
-      white-space: pre-wrap;
+      border-radius: 5px;
+      margin-bottom: 1em;
     }
     input, button {
-      padding: 10px;
+      width: 100%;
+      padding: 0.5em;
+      margin-top: 0.5em;
       border-radius: 5px;
       border: none;
-      margin-top: 5px;
-      font-size: 1em;
-      width: 100%;
-      box-sizing: border-box;
     }
     button {
-      background: #4CAF50;
+      background: #4caf50;
       color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #45a049;
+      font-weight: bold;
     }
     #status {
-      margin-top: 10px;
-      color: lightgreen;
       text-align: center;
+      margin-top: 10px;
+      font-size: 0.9em;
+      color: #4caf50;
     }
   </style>
 </head>
 <body>
-  <div id="container">
-    <h2>🌐 P2P WebRTC Chat Room</h2>
-
-    <div id="status">Connecting...</div>
-    
-    <input id="name" placeholder="Enter your name..." />
-    <div style="display: flex; gap: 10px; margin-top: 5px;">
-      <input id="msg" placeholder="Type your message..." />
-      <button id="send-btn">Send</button>
-    </div>
-
+  <div id="app">
+    <h2>🟢 P2P WebRTC Chat Room</h2>
     <div id="chat"></div>
+    <input id="name" placeholder="Your name..." />
+    <input id="msg" placeholder="Message..." />
+    <button id="send">Send</button>
+    <div id="status">Connecting...</div>
   </div>
 
   <script>
-    const peerId = "default";
+    const HOST_ID = "p2p-chat-room";
+    const isHost = location.hash === "#host";
+    const chat = document.getElementById("chat");
     const nameInput = document.getElementById("name");
     const msgInput = document.getElementById("msg");
-    const sendBtn = document.getElementById("send-btn");
-    const chatBox = document.getElementById("chat");
+    const sendBtn = document.getElementById("send");
     const status = document.getElementById("status");
 
-    const isHost = location.hash === "#host";
-    const peer = new Peer(isHost ? peerId : undefined);
+    const peer = new Peer(isHost ? HOST_ID : undefined, {
+      debug: 2
+    });
 
-    const connections = [];
+    let connections = [];
     let conn;
 
     function log(msg, sender = "System") {
-      chatBox.innerHTML += `<div><strong>${sender}:</strong> ${msg}</div>`;
-      chatBox.scrollTop = chatBox.scrollHeight;
+      chat.innerHTML += `<div><strong>${sender}:</strong> ${msg}</div>`;
+      chat.scrollTop = chat.scrollHeight;
     }
 
-    peer.on("open", id => {
-      if (isHost) {
-        status.textContent = "🟢 Hosting room as 'default'";
-      } else {
-        conn = peer.connect(peerId);
-        setupConnection(conn);
-        status.textContent = "🟡 Connecting to 'default'...";
-      }
-    });
-
-    peer.on("connection", c => {
-      if (!isHost) return; // Only host accepts incoming
-      connections.push(c);
-      c.on("data", data => {
-        broadcast(data, c);
-        log(data.text, data.name);
-      });
-    });
-
-    function broadcast(data, exclude) {
-      connections.forEach(c => {
-        if (c.open && c !== exclude) {
-          c.send(data);
-        }
-      });
-    }
-
-    function setupConnection(c) {
-      c.on("open", () => {
-        status.textContent = "✅ Connected to room";
-        log("Connected to chat", "System");
-      });
-      c.on("data", data => {
-        log(data.text, data.name);
-      });
-      c.on("close", () => {
-        status.textContent = "🔌 Disconnected";
-        log("Disconnected", "System");
-      });
-    }
-
+    // Handle chat input
     sendBtn.onclick = () => {
       const name = nameInput.value.trim() || "Anonymous";
       const text = msgInput.value.trim();
       if (!text) return;
-      const data = { name, text };
+      const message = { name, text };
       log(text, name);
       msgInput.value = "";
+
       if (isHost) {
-        broadcast(data);
+        connections.forEach(c => c.open && c.send(message));
       } else if (conn && conn.open) {
-        conn.send(data);
-      } else {
-        log("Not connected!", "⚠️");
+        conn.send(message);
       }
     };
+
+    // Hosting
+    peer.on("open", id => {
+      if (isHost) {
+        status.textContent = `Hosting as "${HOST_ID}"`;
+      } else {
+        conn = peer.connect(HOST_ID);
+        conn.on("open", () => {
+          status.textContent = `Connected to room`;
+        });
+        conn.on("data", data => {
+          log(data.text, data.name);
+        });
+        conn.on("close", () => {
+          status.textContent = `🔌 Disconnected from room.`;
+        });
+      }
+    });
+
+    // Accept clients if host
+    if (isHost) {
+      peer.on("connection", c => {
+        connections.push(c);
+        c.on("data", data => {
+          log(data.text, data.name);
+          // rebroadcast
+          connections.forEach(other => {
+            if (other !== c && other.open) {
+              other.send(data);
+            }
+          });
+        });
+        c.on("close", () => {
+          connections = connections.filter(x => x !== c);
+        });
+      });
+    }
+
+    peer.on("error", err => {
+      status.textContent = "❌ Error: " + err.message;
+      console.error(err);
+    });
   </script>
 </body>
 </html>
