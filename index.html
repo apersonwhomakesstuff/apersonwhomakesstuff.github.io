@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>PeerJS Chat</title>
+  <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 2em auto; padding: 1em; background: #f5f5f5; }
+    textarea { width: 100%; height: 300px; margin-bottom: 10px; }
+    input, button { padding: 0.5em; width: 100%; margin-top: 5px; }
+    #status { margin-top: 10px; color: green; }
+  </style>
+</head>
+<body>
+
+  <h2>PeerJS P2P Chat</h2>
+  <label>Your Peer ID:</label>
+  <input id="my-id" readonly />
+
+  <label>Connect to Peer ID:</label>
+  <input id="peer-id" placeholder="Paste peer ID here..." />
+  <button id="connect-btn">Connect</button>
+
+  <div id="status">Not connected</div>
+
+  <textarea id="chat" readonly></textarea>
+  <input id="msg" placeholder="Type message..." />
+  <button id="send-btn">Send</button>
+
+  <script>
+    const peer = new Peer();
+    let conn = null;
+
+    const myIdInput = document.getElementById("my-id");
+    const peerIdInput = document.getElementById("peer-id");
+    const connectBtn = document.getElementById("connect-btn");
+    const sendBtn = document.getElementById("send-btn");
+    const msgInput = document.getElementById("msg");
+    const chatBox = document.getElementById("chat");
+    const status = document.getElementById("status");
+
+    peer.on("open", id => {
+      myIdInput.value = id;
+    });
+
+    peer.on("connection", c => {
+      conn = c;
+      setupConnection();
+    });
+
+    connectBtn.onclick = () => {
+      if (conn) conn.close();
+      const peerId = peerIdInput.value;
+      conn = peer.connect(peerId);
+      setupConnection();
+    };
+
+    sendBtn.onclick = () => {
+      if (!conn || conn.open !== true) return;
+      const msg = msgInput.value;
+      conn.send(msg);
+      appendMsg("You: " + msg);
+      msgInput.value = "";
+    };
+
+    function setupConnection() {
+      conn.on("open", () => {
+        status.textContent = "Connected to " + conn.peer;
+        appendMsg("🔗 Connected to " + conn.peer);
+      });
+
+      conn.on("data", data => {
+        appendMsg("Peer: " + data);
+      });
+
+      conn.on("close", () => {
+        appendMsg("❌ Disconnected from peer.");
+        status.textContent = "Not connected";
+      });
+    }
+
+    function appendMsg(msg) {
+      chatBox.value += msg + "\n";
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  </script>
+</body>
+</html>
