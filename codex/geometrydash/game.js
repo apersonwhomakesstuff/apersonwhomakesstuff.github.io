@@ -3,8 +3,9 @@ const ctx = canvas.getContext("2d");
 
 const W = canvas.width;
 const H = canvas.height;
-const GROUND_Y = H - 96;
 const TILE = 48;
+const GROUND_Y = H - 96;
+const PLAYER_SCREEN_X = 190;
 
 const player = {
   pos: { x: 0, y: GROUND_Y - TILE },
@@ -17,7 +18,8 @@ const player = {
   vehicleSize: 1.0,
   size: TILE,
   alive: true,
-  rotation: 0
+  rotation: 0,
+  attempt: 1
 };
 
 const palette = {
@@ -32,7 +34,7 @@ const palette = {
   spikeShadow: "#7e87c6"
 };
 
-// Level blocks are in tile units. s=spike, b=block
+// s=spike, b=block, .=empty
 const pattern = "....s....s...ss...s...b..s...ss....s..b....s....sss.....s...b...s.....ss..s....b....s....s....sss....s....b....s...ss....";
 const level = [];
 for (let i = 0; i < pattern.length; i += 1) {
@@ -40,8 +42,13 @@ for (let i = 0; i < pattern.length; i += 1) {
   if (ch === "s") level.push({ type: "spike", x: i * TILE + 700, y: GROUND_Y });
   if (ch === "b") level.push({ type: "block", x: i * TILE + 700, y: GROUND_Y - TILE });
 }
+
 const levelEnd = pattern.length * TILE + 900;
 let best = 0;
+
+function getFlipMod() {
+  return player.gravityFlipped ? -1 : 1;
+}
 
 function reset() {
   player.pos.x = 0;
@@ -52,10 +59,11 @@ function reset() {
   player.gravityFlipped = false;
   player.alive = true;
   player.rotation = 0;
+  player.attempt += 1;
 }
 
 function jump(force = 1.0) {
-  const flipMod = player.gravityFlipped ? -1 : 1;
+  const flipMod = getFlipMod();
   player.vel.y = flipMod * -player.jumpHeight * 52 * force * (player.vehicleSize === 1 ? 1 : 0.8);
   player.onGround = false;
 }
@@ -71,16 +79,20 @@ function handleJumpPress() {
 window.addEventListener("keydown", (e) => {
   if (["Space", "ArrowUp", "KeyW"].includes(e.code)) {
     e.preventDefault();
-    player.isHolding = true;
-    handleJumpPress();
+    if (!player.isHolding) {
+      player.isHolding = true;
+      handleJumpPress();
+    }
   }
 });
 window.addEventListener("keyup", (e) => {
   if (["Space", "ArrowUp", "KeyW"].includes(e.code)) player.isHolding = false;
 });
 window.addEventListener("pointerdown", () => {
-  player.isHolding = true;
-  handleJumpPress();
+  if (!player.isHolding) {
+    player.isHolding = true;
+    handleJumpPress();
+  }
 });
 window.addEventListener("pointerup", () => {
   player.isHolding = false;
@@ -112,7 +124,7 @@ function rectVsTriangle(rect, triX, triY, width, height) {
 function update(dt) {
   if (!player.alive) return;
 
-  const flipMod = player.gravityFlipped ? -1 : 1;
+  const flipMod = getFlipMod();
 
   // simple horizontal update
   player.pos.x += player.vel.x * dt;
@@ -122,19 +134,22 @@ function update(dt) {
 
   if (!player.onGround) player.rotation += dt * 8 * flipMod;
 
-  const touchingGround = !player.gravityFlipped
-    ? player.pos.y + player.size >= GROUND_Y
-    : player.pos.y <= 0;
+  const touchingFloor = !player.gravityFlipped && player.pos.y + player.size >= GROUND_Y;
+  const touchingCeiling = player.gravityFlipped && player.pos.y <= 0;
 
-  if (touchingGround) {
+  if (touchingFloor || touchingCeiling) {
     player.pos.y = player.gravityFlipped ? 0 : GROUND_Y - player.size;
     player.vel.y = 0;
     player.onGround = true;
     player.rotation = Math.round(player.rotation / (Math.PI / 2)) * (Math.PI / 2);
   }
 
-  const screenX = 190;
-  const rect = { x: screenX + 6, y: player.pos.y + 6, w: player.size - 12, h: player.size - 12 };
+  const rect = {
+    x: PLAYER_SCREEN_X + 6,
+    y: player.pos.y + 6,
+    w: player.size - 12,
+    h: player.size - 12
+  };
 
   for (const obj of level) {
     const sx = obj.x - player.pos.x;
@@ -143,8 +158,8 @@ function update(dt) {
     if (obj.type === "block") {
       const b = { x: sx, y: obj.y, w: TILE, h: TILE };
       if (rectVsRect(rect, b)) {
-        const fromAbove = player.vel.y > 0 && player.pos.y + player.size - player.vel.y * dt <= obj.y;
-        if (fromAbove) {
+        const wasAbove = player.vel.y > 0 && player.pos.y + player.size - player.vel.y * dt <= obj.y;
+        if (wasAbove) {
           player.pos.y = obj.y - player.size;
           player.vel.y = 0;
           player.onGround = true;
@@ -152,12 +167,13 @@ function update(dt) {
           player.alive = false;
         }
       }
-    } else if (rectVsTriangle(rect, sx, obj.y, TILE, TILE)) {
-      player.alive = false;
+      continue;
     }
+
+    if (rectVsTriangle(rect, sx, obj.y, TILE, TILE)) player.alive = false;
   }
 
-  if (player.pos.y > H + 100) player.alive = false;
+  if (player.pos.y > H + 120 || player.pos.y < -player.size - 120) player.alive = false;
   best = Math.max(best, player.pos.x);
 }
 
@@ -181,7 +197,7 @@ function drawGround() {
   ctx.fillStyle = palette.floorDark;
   ctx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
 
-  for (let x = -((player.pos.x % TILE)); x < W + TILE; x += TILE) {
+  for (let x = -(player.pos.x % TILE); x < W + TILE; x += TILE) {
     ctx.fillStyle = palette.floor;
     ctx.fillRect(x, GROUND_Y, TILE - 2, 18);
     ctx.fillStyle = "#ffffff22";
@@ -199,30 +215,30 @@ function drawObjects() {
       ctx.fillRect(x, obj.y, TILE, TILE);
       ctx.fillStyle = "#0f5ca8";
       ctx.fillRect(x + 6, obj.y + 6, TILE - 12, TILE - 12);
-    } else {
-      ctx.fillStyle = palette.spikeShadow;
-      ctx.beginPath();
-      ctx.moveTo(x + 2, obj.y);
-      ctx.lineTo(x + TILE - 2, obj.y);
-      ctx.lineTo(x + TILE / 2, obj.y - TILE + 2);
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.fillStyle = palette.spike;
-      ctx.beginPath();
-      ctx.moveTo(x + 5, obj.y);
-      ctx.lineTo(x + TILE - 5, obj.y);
-      ctx.lineTo(x + TILE / 2, obj.y - TILE + 5);
-      ctx.closePath();
-      ctx.fill();
+      continue;
     }
+
+    ctx.fillStyle = palette.spikeShadow;
+    ctx.beginPath();
+    ctx.moveTo(x + 2, obj.y);
+    ctx.lineTo(x + TILE - 2, obj.y);
+    ctx.lineTo(x + TILE / 2, obj.y - TILE + 2);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = palette.spike;
+    ctx.beginPath();
+    ctx.moveTo(x + 5, obj.y);
+    ctx.lineTo(x + TILE - 5, obj.y);
+    ctx.lineTo(x + TILE / 2, obj.y - TILE + 5);
+    ctx.closePath();
+    ctx.fill();
   }
 }
 
 function drawPlayer() {
-  const screenX = 190;
   ctx.save();
-  ctx.translate(screenX + player.size / 2, player.pos.y + player.size / 2);
+  ctx.translate(PLAYER_SCREEN_X + player.size / 2, player.pos.y + player.size / 2);
   ctx.rotate(player.rotation);
 
   ctx.fillStyle = palette.cube2;
@@ -239,7 +255,7 @@ function drawPlayer() {
     ctx.strokeStyle = palette.glow;
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.arc(screenX + player.size / 2, player.pos.y + player.size / 2, 34, 0, Math.PI * 2);
+    ctx.arc(PLAYER_SCREEN_X + player.size / 2, player.pos.y + player.size / 2, 34, 0, Math.PI * 2);
     ctx.stroke();
   }
 }
@@ -255,6 +271,7 @@ function drawUI() {
   ctx.font = "18px Trebuchet MS";
   ctx.fillStyle = "#cdd7ff";
   ctx.fillText(`Best: ${bestPct}%`, 20, 34);
+  ctx.fillText(`Attempt ${player.attempt}`, 20, 72);
 
   const barW = W - 40;
   ctx.fillStyle = "#1d2565";
