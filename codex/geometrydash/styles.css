@@ -1,0 +1,48 @@
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+  background: radial-gradient(circle at 20% 20%, #2f3cff, #0a0a1f 70%);
+  color: #eef0ff;
+  display: grid;
+  place-items: center;
+}
+
+.wrap {
+  width: min(96vw, 1040px);
+  text-align: center;
+}
+
+h1 {
+  margin: 0 0 8px;
+  letter-spacing: 0.04em;
+}
+
+.hint {
+  margin: 0 0 16px;
+  color: #b8c2ff;
+}
+
+kbd {
+  background: #15173a;
+  border: 1px solid #5862d4;
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 2px 6px;
+}
+
+canvas {
+  width: 100%;
+  border: 4px solid #6e79ff;
+  border-radius: 10px;
+  box-shadow: 0 15px 50px #0008;
+  background: #0c1030;
+}
