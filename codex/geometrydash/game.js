@@ -3,6 +3,7 @@ const ctx = canvas.getContext("2d");
 
 const W = canvas.width;
 const H = canvas.height;
+
 const TILE = 48;
 const GROUND_Y = H - 96;
 const PLAYER_SCREEN_X = 190;
@@ -21,6 +22,11 @@ const player = {
   rotation: 0,
   attempt: 1
 };
+const GROUND_Y = H - 96;
+const TILE = 48;
+const SPEED = 370;
+const GRAVITY = 2400;
+const JUMP_VEL = -860;
 
 const palette = {
   bgA: "#0f1c6e",
@@ -233,12 +239,30 @@ function drawObjects() {
     ctx.lineTo(x + TILE / 2, obj.y - TILE + 5);
     ctx.closePath();
     ctx.fill();
+    } else {
+      ctx.fillStyle = palette.spikeShadow;
+      ctx.beginPath();
+      ctx.moveTo(x + 2, obj.y);
+      ctx.lineTo(x + TILE - 2, obj.y);
+      ctx.lineTo(x + TILE / 2, obj.y - TILE + 2);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = palette.spike;
+      ctx.beginPath();
+      ctx.moveTo(x + 5, obj.y);
+      ctx.lineTo(x + TILE - 5, obj.y);
+      ctx.lineTo(x + TILE / 2, obj.y - TILE + 5);
+      ctx.closePath();
+      ctx.fill();
+    }
   }
 }
 
 function drawPlayer() {
   ctx.save();
   ctx.translate(PLAYER_SCREEN_X + player.size / 2, player.pos.y + player.size / 2);
+  ctx.translate(player.x + player.size / 2, player.y + player.size / 2);
   ctx.rotate(player.rotation);
 
   ctx.fillStyle = palette.cube2;
@@ -256,12 +280,14 @@ function drawPlayer() {
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.arc(PLAYER_SCREEN_X + player.size / 2, player.pos.y + player.size / 2, 34, 0, Math.PI * 2);
+    ctx.arc(player.x + player.size / 2, player.y + player.size / 2, 34, 0, Math.PI * 2);
     ctx.stroke();
   }
 }
 
 function drawUI() {
   const pct = Math.min(100, Math.floor((player.pos.x / levelEnd) * 100));
+  const pct = Math.min(100, Math.floor((distance / levelEnd) * 100));
   const bestPct = Math.min(100, Math.floor((best / levelEnd) * 100));
 
   ctx.fillStyle = "#ffffff";
