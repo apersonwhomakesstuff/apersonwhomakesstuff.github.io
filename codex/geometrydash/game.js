@@ -24,6 +24,11 @@ const player = {
   rotation: 0,
   attempt: 1
 };
+const GROUND_Y = H - 96;
+const TILE = 48;
+const SPEED = 370;
+const GRAVITY = 2400;
+const JUMP_VEL = -860;
 
 const palette = {
   bgA: "#0f1c6e",
@@ -37,6 +42,17 @@ const palette = {
   spikeShadow: "#7e87c6"
 };
 
+const player = {
+  x: 190,
+  y: GROUND_Y - TILE,
+  size: TILE,
+  vy: 0,
+  onGround: true,
+  alive: true,
+  rotation: 0
+};
+
+// Level blocks are in tile units. s=spike, b=block
 const pattern = "....s....s...ss...s...b..s...ss....s..b....s....sss.....s...b...s.....ss..s....b....s....s....sss....s....b....s...ss....";
 const level = [];
 for (let i = 0; i < pattern.length; i += 1) {
@@ -73,6 +89,32 @@ function jump(force = 1.0) {
 function handleJumpPress() {
   if (player.alive && player.onGround) {
     jump();
+  if (ch === "s") {
+    level.push({ type: "spike", x: i * TILE + 700, y: GROUND_Y });
+  }
+  if (ch === "b") {
+    level.push({ type: "block", x: i * TILE + 700, y: GROUND_Y - TILE });
+  }
+}
+const levelEnd = pattern.length * TILE + 900;
+let distance = 0;
+let best = 0;
+let runStart = performance.now();
+
+function reset() {
+  player.y = GROUND_Y - player.size;
+  player.vy = 0;
+  player.onGround = true;
+  player.alive = true;
+  player.rotation = 0;
+  distance = 0;
+  runStart = performance.now();
+}
+
+function jump() {
+  if (player.alive && player.onGround) {
+    player.vy = JUMP_VEL;
+    player.onGround = false;
   } else if (!player.alive) {
     reset();
   }
@@ -95,6 +137,10 @@ window.addEventListener("pointerdown", () => {
 window.addEventListener("pointerup", () => {
   player.isHolding = false;
 });
+    jump();
+  }
+});
+window.addEventListener("pointerdown", jump);
 
 function rectVsRect(a, b) {
   return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
@@ -138,6 +184,17 @@ function update(dt) {
   if (touchingFloor || touchingCeiling) {
     player.pos.y = player.gravityFlipped ? 0 : GROUND_Y - player.size;
     player.vel.y = 0;
+  distance += SPEED * dt;
+  player.vy += GRAVITY * dt;
+  player.y += player.vy * dt;
+
+  if (!player.onGround) {
+    player.rotation += dt * 8;
+  }
+
+  if (player.y + player.size >= GROUND_Y) {
+    player.y = GROUND_Y - player.size;
+    player.vy = 0;
     player.onGround = true;
     player.rotation = Math.round(player.rotation / (Math.PI / 2)) * (Math.PI / 2);
   }
@@ -151,6 +208,10 @@ function update(dt) {
 
   for (const obj of level) {
     const sx = obj.x - player.pos.x;
+  const rect = { x: player.x + 6, y: player.y + 6, w: player.size - 12, h: player.size - 12 };
+
+  for (const obj of level) {
+    const sx = obj.x - distance;
     if (sx < -100 || sx > W + 100) continue;
 
     if (obj.type === "block") {
@@ -173,6 +234,24 @@ function update(dt) {
 
   if (player.pos.y > H + 140 || player.pos.y < -player.size - 140) player.alive = false;
   best = Math.max(best, player.pos.x);
+      if (rectVsRect(rect, b)) {
+        if (player.vy > 0 && player.y + player.size - player.vy * dt <= obj.y) {
+          player.y = obj.y - player.size;
+          player.vy = 0;
+          player.onGround = true;
+        } else {
+          player.alive = false;
+        }
+      }
+    } else {
+      if (rectVsTriangle(rect, sx, obj.y, TILE, TILE)) {
+        player.alive = false;
+      }
+    }
+  }
+
+  if (player.y > H + 100) player.alive = false;
+  best = Math.max(best, distance);
 }
 
 function drawBackground() {
@@ -186,6 +265,9 @@ function drawBackground() {
   for (let i = 0; i < 22; i += 1) {
     const x = ((i * 160 - (player.pos.x * 0.32 + t * 40)) % (W + 220)) - 110;
     const y = 64 + ((i * 49) % 280);
+  for (let i = 0; i < 20; i += 1) {
+    const x = ((i * 180 - (distance * 0.3 + t * 40)) % (W + 220)) - 100;
+    const y = 70 + ((i * 57) % 260);
     ctx.fillStyle = "#77b2ff22";
     ctx.fillRect(x, y, 120, 12);
   }
@@ -196,6 +278,7 @@ function drawGround() {
   ctx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
 
   for (let x = -(player.pos.x % TILE); x < W + TILE; x += TILE) {
+  for (let x = -((distance % TILE)); x < W + TILE; x += TILE) {
     ctx.fillStyle = palette.floor;
     ctx.fillRect(x, GROUND_Y, TILE - 2, 18);
     ctx.fillStyle = "#ffffff22";
@@ -206,6 +289,7 @@ function drawGround() {
 function drawObjects() {
   for (const obj of level) {
     const x = obj.x - player.pos.x;
+    const x = obj.x - distance;
     if (x < -100 || x > W + 100) continue;
 
     if (obj.type === "block") {
@@ -231,12 +315,30 @@ function drawObjects() {
     ctx.lineTo(x + TILE / 2, obj.y - TILE + 5);
     ctx.closePath();
     ctx.fill();
+    } else {
+      ctx.fillStyle = palette.spikeShadow;
+      ctx.beginPath();
+      ctx.moveTo(x + 2, obj.y);
+      ctx.lineTo(x + TILE - 2, obj.y);
+      ctx.lineTo(x + TILE / 2, obj.y - TILE + 2);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = palette.spike;
+      ctx.beginPath();
+      ctx.moveTo(x + 5, obj.y);
+      ctx.lineTo(x + TILE - 5, obj.y);
+      ctx.lineTo(x + TILE / 2, obj.y - TILE + 5);
+      ctx.closePath();
+      ctx.fill();
+    }
   }
 }
 
 function drawPlayer() {
   ctx.save();
   ctx.translate(PLAYER_SCREEN_X + player.size / 2, player.pos.y + player.size / 2);
+  ctx.translate(player.x + player.size / 2, player.y + player.size / 2);
   ctx.rotate(player.rotation);
 
   ctx.fillStyle = palette.cube2;
@@ -254,12 +356,14 @@ function drawPlayer() {
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.arc(PLAYER_SCREEN_X + player.size / 2, player.pos.y + player.size / 2, 34, 0, Math.PI * 2);
+    ctx.arc(player.x + player.size / 2, player.y + player.size / 2, 34, 0, Math.PI * 2);
     ctx.stroke();
   }
 }
 
 function drawUI() {
   const pct = Math.min(100, Math.floor((player.pos.x / levelEnd) * 100));
+  const pct = Math.min(100, Math.floor((distance / levelEnd) * 100));
   const bestPct = Math.min(100, Math.floor((best / levelEnd) * 100));
 
   ctx.fillStyle = "#ffffff";
@@ -304,6 +408,12 @@ function frame(now) {
     accumulator -= FIXED_DT;
   }
 
+let prev = performance.now();
+function frame(now) {
+  const dt = Math.min(0.033, (now - prev) / 1000);
+  prev = now;
+
+  update(dt);
   drawBackground();
   drawGround();
   drawObjects();
