@@ -3,6 +3,27 @@ const ctx = canvas.getContext("2d");
 
 const W = canvas.width;
 const H = canvas.height;
+const TILE = 48;
+const GROUND_Y = H - 96;
+const PLAYER_SCREEN_X = 190;
+
+const FIXED_DT = 1 / 240;
+const MAX_FRAME = 1 / 20;
+
+const player = {
+  pos: { x: 0, y: GROUND_Y - TILE },
+  vel: { x: 372, y: 0 },
+  gravity: 2450,
+  jumpHeight: 16,
+  isHolding: false,
+  onGround: true,
+  gravityFlipped: false,
+  vehicleSize: 1.0,
+  size: TILE,
+  alive: true,
+  rotation: 0,
+  attempt: 1
+};
 const GROUND_Y = H - 96;
 const TILE = 48;
 const SPEED = 370;
@@ -36,6 +57,38 @@ const pattern = "....s....s...ss...s...b..s...ss....s..b....s....sss.....s...b..
 const level = [];
 for (let i = 0; i < pattern.length; i += 1) {
   const ch = pattern[i];
+  if (ch === "s") level.push({ type: "spike", x: i * TILE + 700, y: GROUND_Y });
+  if (ch === "b") level.push({ type: "block", x: i * TILE + 700, y: GROUND_Y - TILE });
+}
+
+const levelEnd = pattern.length * TILE + 900;
+let best = 0;
+
+function getFlipMod() {
+  return player.gravityFlipped ? -1 : 1;
+}
+
+function reset() {
+  player.pos.x = 0;
+  player.pos.y = GROUND_Y - player.size;
+  player.vel.x = 372;
+  player.vel.y = 0;
+  player.onGround = true;
+  player.gravityFlipped = false;
+  player.alive = true;
+  player.rotation = 0;
+  player.attempt += 1;
+}
+
+function jump(force = 1.0) {
+  const flipMod = getFlipMod();
+  player.vel.y = flipMod * -player.jumpHeight * 52 * force * (player.vehicleSize === 1 ? 1 : 0.8);
+  player.onGround = false;
+}
+
+function handleJumpPress() {
+  if (player.alive && player.onGround) {
+    jump();
   if (ch === "s") {
     level.push({ type: "spike", x: i * TILE + 700, y: GROUND_Y });
   }
@@ -70,6 +123,20 @@ function jump() {
 window.addEventListener("keydown", (e) => {
   if (["Space", "ArrowUp", "KeyW"].includes(e.code)) {
     e.preventDefault();
+    player.isHolding = true;
+    handleJumpPress();
+  }
+});
+window.addEventListener("keyup", (e) => {
+  if (["Space", "ArrowUp", "KeyW"].includes(e.code)) player.isHolding = false;
+});
+window.addEventListener("pointerdown", () => {
+  player.isHolding = true;
+  handleJumpPress();
+});
+window.addEventListener("pointerup", () => {
+  player.isHolding = false;
+});
     jump();
   }
 });
@@ -101,6 +168,22 @@ function rectVsTriangle(rect, triX, triY, width, height) {
 function update(dt) {
   if (!player.alive) return;
 
+  const flipMod = getFlipMod();
+  player.pos.x += player.vel.x * dt;
+
+  const prevY = player.pos.y;
+  player.vel.y += player.gravity * dt * flipMod;
+  player.pos.y += player.vel.y * dt;
+
+  if (!player.onGround) {
+    player.rotation += dt * 9 * flipMod;
+  }
+
+  const touchingFloor = !player.gravityFlipped && player.pos.y + player.size >= GROUND_Y;
+  const touchingCeiling = player.gravityFlipped && player.pos.y <= 0;
+  if (touchingFloor || touchingCeiling) {
+    player.pos.y = player.gravityFlipped ? 0 : GROUND_Y - player.size;
+    player.vel.y = 0;
   distance += SPEED * dt;
   player.vy += GRAVITY * dt;
   player.y += player.vy * dt;
@@ -116,6 +199,15 @@ function update(dt) {
     player.rotation = Math.round(player.rotation / (Math.PI / 2)) * (Math.PI / 2);
   }
 
+  const rect = {
+    x: PLAYER_SCREEN_X + 7,
+    y: player.pos.y + 7,
+    w: player.size - 14,
+    h: player.size - 14
+  };
+
+  for (const obj of level) {
+    const sx = obj.x - player.pos.x;
   const rect = { x: player.x + 6, y: player.y + 6, w: player.size - 12, h: player.size - 12 };
 
   for (const obj of level) {
@@ -124,6 +216,24 @@ function update(dt) {
 
     if (obj.type === "block") {
       const b = { x: sx, y: obj.y, w: TILE, h: TILE };
+      if (!rectVsRect(rect, b)) continue;
+
+      const wasAbove = player.vel.y >= 0 && prevY + player.size <= obj.y + 4;
+      if (wasAbove && !player.gravityFlipped) {
+        player.pos.y = obj.y - player.size;
+        player.vel.y = 0;
+        player.onGround = true;
+      } else {
+        player.alive = false;
+      }
+      continue;
+    }
+
+    if (rectVsTriangle(rect, sx, obj.y, TILE, TILE)) player.alive = false;
+  }
+
+  if (player.pos.y > H + 140 || player.pos.y < -player.size - 140) player.alive = false;
+  best = Math.max(best, player.pos.x);
       if (rectVsRect(rect, b)) {
         if (player.vy > 0 && player.y + player.size - player.vy * dt <= obj.y) {
           player.y = obj.y - player.size;
@@ -152,6 +262,9 @@ function drawBackground() {
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, W, H);
 
+  for (let i = 0; i < 22; i += 1) {
+    const x = ((i * 160 - (player.pos.x * 0.32 + t * 40)) % (W + 220)) - 110;
+    const y = 64 + ((i * 49) % 280);
   for (let i = 0; i < 20; i += 1) {
     const x = ((i * 180 - (distance * 0.3 + t * 40)) % (W + 220)) - 100;
     const y = 70 + ((i * 57) % 260);
@@ -164,6 +277,7 @@ function drawGround() {
   ctx.fillStyle = palette.floorDark;
   ctx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
 
+  for (let x = -(player.pos.x % TILE); x < W + TILE; x += TILE) {
   for (let x = -((distance % TILE)); x < W + TILE; x += TILE) {
     ctx.fillStyle = palette.floor;
     ctx.fillRect(x, GROUND_Y, TILE - 2, 18);
@@ -174,6 +288,7 @@ function drawGround() {
 
 function drawObjects() {
   for (const obj of level) {
+    const x = obj.x - player.pos.x;
     const x = obj.x - distance;
     if (x < -100 || x > W + 100) continue;
 
@@ -182,6 +297,24 @@ function drawObjects() {
       ctx.fillRect(x, obj.y, TILE, TILE);
       ctx.fillStyle = "#0f5ca8";
       ctx.fillRect(x + 6, obj.y + 6, TILE - 12, TILE - 12);
+      continue;
+    }
+
+    ctx.fillStyle = palette.spikeShadow;
+    ctx.beginPath();
+    ctx.moveTo(x + 2, obj.y);
+    ctx.lineTo(x + TILE - 2, obj.y);
+    ctx.lineTo(x + TILE / 2, obj.y - TILE + 2);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = palette.spike;
+    ctx.beginPath();
+    ctx.moveTo(x + 5, obj.y);
+    ctx.lineTo(x + TILE - 5, obj.y);
+    ctx.lineTo(x + TILE / 2, obj.y - TILE + 5);
+    ctx.closePath();
+    ctx.fill();
     } else {
       ctx.fillStyle = palette.spikeShadow;
       ctx.beginPath();
@@ -204,6 +337,7 @@ function drawObjects() {
 
 function drawPlayer() {
   ctx.save();
+  ctx.translate(PLAYER_SCREEN_X + player.size / 2, player.pos.y + player.size / 2);
   ctx.translate(player.x + player.size / 2, player.y + player.size / 2);
   ctx.rotate(player.rotation);
 
@@ -221,12 +355,14 @@ function drawPlayer() {
     ctx.strokeStyle = palette.glow;
     ctx.lineWidth = 3;
     ctx.beginPath();
+    ctx.arc(PLAYER_SCREEN_X + player.size / 2, player.pos.y + player.size / 2, 34, 0, Math.PI * 2);
     ctx.arc(player.x + player.size / 2, player.y + player.size / 2, 34, 0, Math.PI * 2);
     ctx.stroke();
   }
 }
 
 function drawUI() {
+  const pct = Math.min(100, Math.floor((player.pos.x / levelEnd) * 100));
   const pct = Math.min(100, Math.floor((distance / levelEnd) * 100));
   const bestPct = Math.min(100, Math.floor((best / levelEnd) * 100));
 
@@ -237,6 +373,7 @@ function drawUI() {
   ctx.font = "18px Trebuchet MS";
   ctx.fillStyle = "#cdd7ff";
   ctx.fillText(`Best: ${bestPct}%`, 20, 34);
+  ctx.fillText(`Attempt ${player.attempt}`, 20, 72);
 
   const barW = W - 40;
   ctx.fillStyle = "#1d2565";
@@ -257,6 +394,19 @@ function drawUI() {
     player.alive = false;
   }
 }
+
+let previousTime = performance.now();
+let accumulator = 0;
+
+function frame(now) {
+  const frameTime = Math.min(MAX_FRAME, (now - previousTime) / 1000);
+  previousTime = now;
+  accumulator += frameTime;
+
+  while (accumulator >= FIXED_DT) {
+    update(FIXED_DT);
+    accumulator -= FIXED_DT;
+  }
 
 let prev = performance.now();
 function frame(now) {
